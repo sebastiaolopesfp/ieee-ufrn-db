@@ -1,0 +1,18 @@
+package br.ufrn.ieee.database.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+@Table(name = "diretor")
+public class Diretor {
+    @Id
+    @Column(name = "voluntario_id")
+    private Long voluntarioId;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @MapsId
+    @JoinColumn(name = "voluntario_id")
+    private Membro membro;
+}
