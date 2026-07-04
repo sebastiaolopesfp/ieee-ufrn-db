@@ -1,5 +1,7 @@
 package br.ufrn.ieee.database.voluntario.controller;
 
+import br.ufrn.ieee.database.voluntario.dto.PromoverDiretorRequestDTO;
+import br.ufrn.ieee.database.voluntario.dto.PromoverMembroRequestDTO;
 import br.ufrn.ieee.database.voluntario.dto.VoluntarioRequestDTO;
 import br.ufrn.ieee.database.voluntario.dto.VoluntarioResponseDTO;
 import br.ufrn.ieee.database.voluntario.service.VoluntarioService;
@@ -22,5 +24,17 @@ public class VoluntarioController {
     public ResponseEntity<VoluntarioResponseDTO> cadastrar(@RequestBody VoluntarioRequestDTO dto) {
         VoluntarioResponseDTO response = voluntarioService.cadastrarVoluntario(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/{id}/promover-membro")
+    public ResponseEntity<Void> promoverMembro(@PathVariable Long id, @RequestBody PromoverMembroRequestDTO dto) {
+        voluntarioService.promoverAMembro(id, dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/promover-diretor")
+    public ResponseEntity<Void> promoverDiretor(@PathVariable Long id, @RequestBody PromoverDiretorRequestDTO dto) {
+        voluntarioService.promoverADiretor(id, dto);
+        return ResponseEntity.ok().build();
     }
 }

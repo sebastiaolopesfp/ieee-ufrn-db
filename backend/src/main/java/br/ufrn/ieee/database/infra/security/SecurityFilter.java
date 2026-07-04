@@ -35,7 +35,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (token != null) {
             var email = tokenService.validarToken(token);
             
-            if (email != null) {
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails user = voluntarioRepository.findByEmailPessoal(email)
                         .map(voluntario -> org.springframework.security.core.userdetails.User.withUsername(voluntario.getEmailPessoal())
                                 .password(voluntario.getSenha())

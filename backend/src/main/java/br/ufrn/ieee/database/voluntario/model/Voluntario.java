@@ -5,6 +5,8 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import br.ufrn.ieee.database.academico.model.Vinculo;
 
 @Data
@@ -41,6 +43,7 @@ public class Voluntario {
     private TipoUsuario tipoUsuario = TipoUsuario.VOLUNTARIO;
 
     @OneToOne(mappedBy = "voluntario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Membro membro;
 
     @OneToMany(mappedBy = "voluntario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
