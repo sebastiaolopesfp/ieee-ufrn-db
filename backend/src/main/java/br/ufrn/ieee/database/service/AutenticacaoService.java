@@ -25,7 +25,7 @@ public class AutenticacaoService implements UserDetailsService {
         Voluntario voluntario = voluntarioRepository.findByEmailPessoal(emailPessoal)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o e-mail: " + emailPessoal));
 
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + voluntario.getTipoUsuario());
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + voluntario.getTipoUsuario().name());
 
         return new User(
                 voluntario.getEmailPessoal(),

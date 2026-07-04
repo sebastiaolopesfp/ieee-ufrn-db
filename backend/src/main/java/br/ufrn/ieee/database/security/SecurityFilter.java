@@ -38,7 +38,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                 UserDetails user = voluntarioRepository.findByEmailPessoal(email)
                         .map(voluntario -> org.springframework.security.core.userdetails.User.withUsername(voluntario.getEmailPessoal())
                                 .password(voluntario.getSenha())
-                                .roles(voluntario.getTipoUsuario())
+                                .roles(voluntario.getTipoUsuario().name())
                                 .build())
                         .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 

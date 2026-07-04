@@ -2,6 +2,7 @@ package br.ufrn.ieee.database.service;
 
 import br.ufrn.ieee.database.dto.VoluntarioRequestDTO;
 import br.ufrn.ieee.database.dto.VoluntarioResponseDTO;
+import br.ufrn.ieee.database.model.TipoUsuario;
 import br.ufrn.ieee.database.model.Voluntario;
 import br.ufrn.ieee.database.repository.VoluntarioRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,7 +39,7 @@ public class VoluntarioService {
         
         voluntario.setSenha(passwordEncoder.encode(dto.getSenha()));
         
-        voluntario.setTipoUsuario("VOLUNTARIO"); 
+        voluntario.setTipoUsuario(TipoUsuario.VOLUNTARIO); 
 
         Voluntario voluntarioSalvo = voluntarioRepository.save(voluntario);
 
@@ -47,7 +48,7 @@ public class VoluntarioService {
         resposta.setPrimeiroNome(voluntarioSalvo.getPrimeiroNome());
         resposta.setUltimoNome(voluntarioSalvo.getUltimoNome());
         resposta.setEmailPessoal(voluntarioSalvo.getEmailPessoal());
-        resposta.setTipoUsuario(voluntarioSalvo.getTipoUsuario());
+        resposta.setTipoUsuario(voluntarioSalvo.getTipoUsuario().name());
 
         return resposta;
     }
