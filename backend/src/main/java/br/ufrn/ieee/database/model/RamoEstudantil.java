@@ -11,8 +11,8 @@ public class RamoEstudantil {
     @Column(name = "unidade_codigo")
     private String unidadeCodigo;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
-    @JoinColumn(name = "unidade_codigo")
+    @JoinColumn(name = "unidade_codigo", nullable = false)
     private UnidadeOrganizacional unidade;
 }

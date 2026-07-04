@@ -8,15 +8,15 @@ import lombok.Data;
 @Table(name = "grupo_de_afinidade")
 public class GrupoDeAfinidade {
     @Id
-    @Column(name = "unidade_codigo")
+    @Column(name = "unidade_codigo", length = 10)
     private String unidadeCodigo;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
-    @JoinColumn(name = "unidade_codigo")
+    @JoinColumn(name = "unidade_codigo", nullable = false)
     private UnidadeOrganizacional unidade;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ramo_codigo", nullable = false)
     private RamoEstudantil ramo;
 }

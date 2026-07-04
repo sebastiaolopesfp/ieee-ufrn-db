@@ -18,7 +18,7 @@ public class Instituicao {
     @Column(nullable = false, length = 20)
     private String sigla;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "instituicao_curso",
         joinColumns = @JoinColumn(name = "instituicao_id"),

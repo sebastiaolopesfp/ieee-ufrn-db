@@ -18,7 +18,7 @@ public class Evento {
     @Column(nullable = false, length = 255)
     private String titulo;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String descricao;
 
     @Column(name = "vtools_id", length = 50)
@@ -45,11 +45,11 @@ public class Evento {
     @Column(name = "orcamento_estimado", nullable = false, precision = 10, scale = 2)
     private BigDecimal orcamentoEstimado;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "evento_unidade",
             joinColumns = @JoinColumn(name = "evento_id"),
-            inverseJoinColumns = @JoinColumn(name = "unidade_codigo", referencedColumnName = "codigo")
+            inverseJoinColumns = @JoinColumn(name = "unidade_codigo", referencedColumnName = "unidade_codigo")
     )
     private Set<UnidadeOrganizacional> unidades = new HashSet<>();
 }

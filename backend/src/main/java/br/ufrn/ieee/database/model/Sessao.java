@@ -15,7 +15,7 @@ public class Sessao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evento_id")
     private Evento evento;
 
@@ -34,7 +34,7 @@ public class Sessao {
     @Column(nullable = false, length = 150)
     private String local;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "voluntario_sessao",
             joinColumns = @JoinColumn(name = "sessao_id"),

@@ -13,12 +13,12 @@ public class Relatorio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diretor_id", referencedColumnName = "voluntario_id", nullable = false)
-    private Diretor director;
+    private Diretor diretor;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "unidade_codigo", referencedColumnName = "codigo", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unidade_codigo", referencedColumnName = "unidade_codigo", nullable = false)
     private UnidadeOrganizacional unidade;
 
     @Column(name = "tipo_relatorio", nullable = false, length = 100)

@@ -11,8 +11,8 @@ public class Diretor {
     @Column(name = "voluntario_id")
     private Long voluntarioId;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
-    @JoinColumn(name = "voluntario_id")
+    @JoinColumn(name = "voluntario_id", nullable = false)
     private Membro membro;
 }

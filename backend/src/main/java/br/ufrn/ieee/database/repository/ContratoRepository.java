@@ -10,5 +10,5 @@ public interface ContratoRepository extends JpaRepository<Contrato, Long> {
     List<Contrato> findByVinculoId(Long vinculoId);
     
     // Busca os contratos vinculados a uma Unidade Organizacional específica (Capítulo ou Ramo)
-    List<Contrato> findByUnidadeCodigo(String unidadeCodigo);
+    List<Contrato> findByUnidadeUnidadeCodigo(String unidadeCodigo);
 }

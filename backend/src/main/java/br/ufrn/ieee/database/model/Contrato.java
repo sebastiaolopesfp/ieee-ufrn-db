@@ -12,12 +12,12 @@ public class Contrato {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vinculo_id", nullable = false)
     private Vinculo vinculo;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "unidade_codigo", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unidade_codigo", referencedColumnName = "unidade_codigo", nullable = false)
     private UnidadeOrganizacional unidade;
 
     @Column(name = "data_inicio", nullable = false)

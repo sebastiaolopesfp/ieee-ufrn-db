@@ -8,8 +8,8 @@ import lombok.Data;
 @Table(name = "unidade_organizacional")
 public class UnidadeOrganizacional {
     @Id
-    @Column(length = 100)
-    private String codigo;
+    @Column(name = "unidade_codigo", length = 10)
+    private String unidadeCodigo;
 
     @Column(nullable = false, length = 150)
     private String nome;

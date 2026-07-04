@@ -12,9 +12,9 @@ public class Membro {
     @Column(name = "voluntario_id")
     private Long voluntarioId;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
-    @JoinColumn(name = "voluntario_id")
+    @JoinColumn(name = "voluntario_id", nullable = false)
     private Voluntario voluntario;
 
     @Column(name = "num_membresia", nullable = false, unique = true, length = 20)

@@ -34,8 +34,9 @@ public class Voluntario {
     @Column(nullable = false, unique = true, length = 14)
     private String cpf;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "tipo_usuario", nullable = false, length = 30)
-    private String tipoUsuario = "VOLUNTARIO";
+    private TipoUsuario tipoUsuario = TipoUsuario.VOLUNTARIO;
 
     @OneToOne(mappedBy = "voluntario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Membro membro;
