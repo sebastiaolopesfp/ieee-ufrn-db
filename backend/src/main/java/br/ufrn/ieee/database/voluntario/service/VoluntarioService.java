@@ -1,5 +1,6 @@
 package br.ufrn.ieee.database.voluntario.service;
 
+import br.ufrn.ieee.database.shared.exception.RegraDeNegocioException;
 import br.ufrn.ieee.database.voluntario.dto.VoluntarioRequestDTO;
 import br.ufrn.ieee.database.voluntario.dto.VoluntarioResponseDTO;
 import br.ufrn.ieee.database.voluntario.model.TipoUsuario;
@@ -24,10 +25,10 @@ public class VoluntarioService {
     @Transactional
     public VoluntarioResponseDTO cadastrarVoluntario(VoluntarioRequestDTO dto) {
         if (voluntarioRepository.findByEmailPessoal(dto.getEmailPessoal()).isPresent()) {
-            throw new RuntimeException("E-mail já cadastrado no sistema.");
+            throw new RegraDeNegocioException("E-mail já cadastrado no sistema.");
         }
         if (voluntarioRepository.findByCpf(dto.getCpf()).isPresent()) {
-            throw new RuntimeException("CPF já cadastrado no sistema.");
+            throw new RegraDeNegocioException("CPF já cadastrado no sistema.");
         }
 
         Voluntario voluntario = new Voluntario();
