@@ -25,6 +25,7 @@ public class GlobalExceptionHandler {
     // Caso aconteça qualquer outro erro inesperado no sistema
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErroResponseDTO> handleGeneralException(Exception ex) {
+        ex.printStackTrace();
         ErroResponseDTO erro = new ErroResponseDTO("Ocorreu um erro interno no servidor.", HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
     }
