@@ -338,4 +338,39 @@ public class VoluntarioService {
 
         mandatoRepository.save(novoMandato);
     }
+
+    @Transactional
+    public void alterarSenha(Long id, AlterarSenhaRequestDTO dto) {
+        Voluntario voluntario = voluntarioRepository.findById(id)
+            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+
+        if (!passwordEncoder.matches(dto.getSenhaAtual(), voluntario.getSenha())) {
+            throw new RegraDeNegocioException("A senha atual informada está incorreta.");
+        }
+
+        voluntario.setSenha(passwordEncoder.encode(dto.getNovaSenha()));
+        voluntarioRepository.save(voluntario);
+    }
+
+    @Transactional
+    public void adminAtualizarEmailCPF(Long id, AdminUpdateEmailCPFRequestDTO dto) {
+        Voluntario voluntario = voluntarioRepository.findById(id)
+            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+
+        if (dto.getNovoEmail() != null && !dto.getNovoEmail().equalsIgnoreCase(voluntario.getEmailPessoal())) {
+            if (voluntarioRepository.findByEmailPessoal(dto.getNovoEmail()).isPresent()) {
+                throw new RegraDeNegocioException("O novo e-mail informado já está em uso por outro voluntário.");
+            }
+            voluntario.setEmailPessoal(dto.getNovoEmail());
+        }
+
+        if (dto.getNovoCpf() != null && !dto.getNovoCpf().equals(voluntario.getCpf())) {
+            if (voluntarioRepository.findByCpf(dto.getNovoCpf()).isPresent()) {
+                throw new RegraDeNegocioException("O novo CPF informado já está em uso por outro voluntário.");
+            }
+            voluntario.setCpf(dto.getNovoCpf());
+        }
+
+        voluntarioRepository.save(voluntario);
+    }
 }

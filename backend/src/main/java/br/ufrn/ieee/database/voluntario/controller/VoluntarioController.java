@@ -1,5 +1,7 @@
 package br.ufrn.ieee.database.voluntario.controller;
 
+import br.ufrn.ieee.database.voluntario.dto.AdminUpdateEmailCPFRequestDTO;
+import br.ufrn.ieee.database.voluntario.dto.AlterarSenhaRequestDTO;
 import br.ufrn.ieee.database.voluntario.dto.AtualizarCargoRequestDTO;
 import br.ufrn.ieee.database.voluntario.dto.PromoverDiretorRequestDTO;
 import br.ufrn.ieee.database.voluntario.dto.PromoverMembroRequestDTO;
@@ -9,6 +11,7 @@ import br.ufrn.ieee.database.voluntario.dto.VoluntarioPerfilResponseDTO;
 import br.ufrn.ieee.database.voluntario.service.VoluntarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -81,6 +84,19 @@ public class VoluntarioController {
     @DeleteMapping("/{id}/remover-diretor")
     public ResponseEntity<Void> removerDiretoria(@PathVariable Long id) {
         voluntarioService.removerDiretoria(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/alterar-senha")
+    public ResponseEntity<Void> alterarSenha(@PathVariable Long id, @RequestBody AlterarSenhaRequestDTO dto) {
+        voluntarioService.alterarSenha(id, dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/admin/{id}/identidade")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> adminAtualizarEmailCPF(@PathVariable Long id, @RequestBody AdminUpdateEmailCPFRequestDTO dto) {
+        voluntarioService.adminAtualizarEmailCPF(id, dto);
         return ResponseEntity.ok().build();
     }
 }
