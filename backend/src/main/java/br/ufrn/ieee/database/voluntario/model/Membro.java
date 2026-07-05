@@ -27,6 +27,9 @@ public class Membro {
     @Column(name = "data_inicio", nullable = false)
     private LocalDate dataInicio;
 
+    @Column(name = "data_fim")
+    private LocalDate dataFim;
+
     @Column(name = "e_mail_ieee", nullable = false, unique = true, length = 255)
     private String emailIeee;
 
