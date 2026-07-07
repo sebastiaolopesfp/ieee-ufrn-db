@@ -1,8 +1,8 @@
-package br.ufrn.ieee.database.organizacional.repository;
+package br.ufrn.ieee.database.evento.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import br.ufrn.ieee.database.organizacional.model.Evento;
+import br.ufrn.ieee.database.evento.model.Evento;
 
 import java.util.List;
 import java.util.Optional;

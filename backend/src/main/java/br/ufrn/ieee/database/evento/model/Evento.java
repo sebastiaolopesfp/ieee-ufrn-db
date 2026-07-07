@@ -1,4 +1,4 @@
-package br.ufrn.ieee.database.organizacional.model;
+package br.ufrn.ieee.database.evento.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+
+import br.ufrn.ieee.database.organizacional.model.UnidadeOrganizacional;
 
 @Data
 @Entity

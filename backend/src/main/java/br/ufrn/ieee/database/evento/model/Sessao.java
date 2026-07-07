@@ -1,4 +1,4 @@
-package br.ufrn.ieee.database.organizacional.model;
+package br.ufrn.ieee.database.evento.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

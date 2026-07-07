@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
 
-import br.ufrn.ieee.database.organizacional.model.Evento;
+import br.ufrn.ieee.database.evento.model.Evento;
 
 @Data
 @Entity
