@@ -8,10 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import br.ufrn.ieee.database.gestao.dto.MandatoResponseDTO;
-import br.ufrn.ieee.database.gestao.model.Cargo;
-import br.ufrn.ieee.database.gestao.model.Mandato;
-import br.ufrn.ieee.database.gestao.repository.CargoRepository;
-import br.ufrn.ieee.database.gestao.repository.MandatoRepository;
+import br.ufrn.ieee.database.gestao.service.MandatoService;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
 import br.ufrn.ieee.database.shared.exception.RegraDeNegocioException;
 import br.ufrn.ieee.database.voluntario.dto.*;
@@ -24,23 +21,20 @@ public class VoluntarioService {
     private final VoluntarioRepository voluntarioRepository;
     private final MembroRepository membroRepository;
     private final DiretorRepository diretorRepository;
-    private final CargoRepository cargoRepository;
-    private final MandatoRepository mandatoRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final MandatoService mandatoService;
 
     public VoluntarioService(
-            VoluntarioRepository voluntarioRepository, 
+            VoluntarioRepository voluntarioRepository,
             MembroRepository membroRepository,
             DiretorRepository diretorRepository,
-            CargoRepository cargoRepository,
-            MandatoRepository mandatoRepository,
-            BCryptPasswordEncoder passwordEncoder) {
+            BCryptPasswordEncoder passwordEncoder,
+            MandatoService mandatoService) {
         this.voluntarioRepository = voluntarioRepository;
         this.membroRepository = membroRepository;
         this.diretorRepository = diretorRepository;
-        this.cargoRepository = cargoRepository;
-        this.mandatoRepository = mandatoRepository;
         this.passwordEncoder = passwordEncoder;
+        this.mandatoService = mandatoService;
     }
 
     @Transactional(readOnly = true)
@@ -62,8 +56,8 @@ public class VoluntarioService {
     @Transactional(readOnly = true)
     public VoluntarioResponseDTO buscarPorId(Long id) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
-        
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+
         VoluntarioResponseDTO dto = new VoluntarioResponseDTO();
         dto.setId(voluntario.getId());
         dto.setPrimeiroNome(voluntario.getPrimeiroNome());
@@ -90,7 +84,7 @@ public class VoluntarioService {
         voluntario.setTelefone(dto.getTelefone());
         voluntario.setCpf(dto.getCpf());
         voluntario.setSenha(passwordEncoder.encode(dto.getSenha()));
-        voluntario.setTipoUsuario(TipoUsuario.VOLUNTARIO); 
+        voluntario.setTipoUsuario(TipoUsuario.VOLUNTARIO);
 
         Voluntario voluntarioSalvo = voluntarioRepository.save(voluntario);
 
@@ -107,15 +101,15 @@ public class VoluntarioService {
     @Transactional
     public VoluntarioResponseDTO atualizar(Long id, VoluntarioRequestDTO dto) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
-        
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+
         voluntario.setPrimeiroNome(dto.getPrimeiroNome());
         voluntario.setNomeMeio(dto.getNomeMeio());
         voluntario.setUltimoNome(dto.getUltimoNome());
         voluntario.setTelefone(dto.getTelefone());
-        
+
         Voluntario voluntarioSalvo = voluntarioRepository.save(voluntario);
-        
+
         VoluntarioResponseDTO resposta = new VoluntarioResponseDTO();
         resposta.setId(voluntarioSalvo.getId());
         resposta.setPrimeiroNome(voluntarioSalvo.getPrimeiroNome());
@@ -128,14 +122,14 @@ public class VoluntarioService {
     @Transactional
     public void deletar(Long id) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
         voluntarioRepository.delete(voluntario);
     }
 
     @Transactional(readOnly = true)
     public VoluntarioPerfilResponseDTO obterPerfilCompleto(Long id) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
 
         VoluntarioPerfilResponseDTO perfil = new VoluntarioPerfilResponseDTO();
         perfil.setId(voluntario.getId());
@@ -153,25 +147,9 @@ public class VoluntarioService {
         }
 
         if (diretorRepository.existsById(id)) {
-            List<Mandato> mandatos = mandatoRepository.findAll(); 
-            List<MandatoResponseDTO> historico = new ArrayList<>();
-            LocalDate hoje = LocalDate.now();
-
-            for (Mandato m : mandatos) {
-                if (m.getDiretor().getVoluntarioId().equals(id)) {
-                    boolean usuarioEhDiretor = voluntario.getTipoUsuario() == TipoUsuario.DIRETOR_RAMO || voluntario.getTipoUsuario() == TipoUsuario.DIRETOR_CAPITULO;
-
-                    boolean ativo = usuarioEhDiretor && !hoje.isBefore(m.getDataInicio()) && !hoje.isAfter(m.getDataFim());
-                    historico.add(new MandatoResponseDTO(
-                        m.getId(),
-                        m.getCargo().getId(),
-                        m.getCargo().getNome(),
-                        m.getDataInicio(),
-                        m.getDataFim(),
-                        ativo
-                    ));
-                }
-            }
+            boolean usuarioEhDiretor = voluntario.getTipoUsuario() == TipoUsuario.DIRETOR_RAMO
+                    || voluntario.getTipoUsuario() == TipoUsuario.DIRETOR_CAPITULO;
+            List<MandatoResponseDTO> historico = mandatoService.obterHistoricoMandatos(id, usuarioEhDiretor);
             perfil.setHistoricoMandatos(historico);
         }
 
@@ -181,7 +159,7 @@ public class VoluntarioService {
     @Transactional
     public void promoverAMembro(Long id, PromoverMembroRequestDTO dto) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
 
         Optional<Membro> membroExistente = membroRepository.findById(id);
 
@@ -217,10 +195,11 @@ public class VoluntarioService {
     @Transactional
     public void promoverADiretor(Long id, PromoverDiretorRequestDTO dto) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
-        
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+
         Membro membro = membroRepository.findById(id)
-            .orElseThrow(() -> new RegraDeNegocioException("Apenas voluntários com registro de membro podem ser promovidos a Diretor."));
+                .orElseThrow(() -> new RegraDeNegocioException(
+                        "Apenas voluntários com registro de membro podem ser promovidos a Diretor."));
 
         if (membro.getDataFim() != null) {
             throw new RegraDeNegocioException("Não é possível promover um membro inativo. Ative a membresia primeiro.");
@@ -229,9 +208,6 @@ public class VoluntarioService {
         if (dto.getDataFim().isBefore(dto.getDataInicio())) {
             throw new RegraDeNegocioException("A data de término não pode ser anterior à data de início.");
         }
-
-        Cargo cargo = cargoRepository.findById(dto.getCargoId())
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Cargo informado não existe."));
 
         voluntario.setTipoUsuario(dto.getTipoDiretor());
         voluntarioRepository.save(voluntario);
@@ -247,22 +223,17 @@ public class VoluntarioService {
             diretor = diretorRepository.findById(id).get();
         }
 
-        Mandato mandato = new Mandato();
-        mandato.setDiretor(diretor);
-        mandato.setCargo(cargo);
-        mandato.setDataInicio(dto.getDataInicio());
-        mandato.setDataFim(dto.getDataFim());
-
-        mandatoRepository.save(mandato);
+        mandatoService.criarMandato(diretor, dto.getCargoId(), dto.getDataInicio(), dto.getDataFim());
     }
 
     @Transactional
     public void removerMembresia(Long id) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
 
         Membro membro = membroRepository.findById(id)
-            .orElseThrow(() -> new RegraDeNegocioException("Este usuário não possui registro de Membro no sistema."));
+                .orElseThrow(
+                        () -> new RegraDeNegocioException("Este usuário não possui registro de Membro no sistema."));
 
         if (voluntario.getTipoUsuario() == TipoUsuario.VOLUNTARIO && membro.getDataFim() != null) {
             throw new RegraDeNegocioException("Este usuário já é um voluntário com membresia inativa.");
@@ -270,7 +241,8 @@ public class VoluntarioService {
 
         LocalDate hoje = LocalDate.now();
 
-        if (voluntario.getTipoUsuario() == TipoUsuario.DIRETOR_RAMO || voluntario.getTipoUsuario() == TipoUsuario.DIRETOR_CAPITULO) {
+        if (voluntario.getTipoUsuario() == TipoUsuario.DIRETOR_RAMO
+                || voluntario.getTipoUsuario() == TipoUsuario.DIRETOR_CAPITULO) {
             removerDiretoria(id);
         }
 
@@ -284,24 +256,14 @@ public class VoluntarioService {
     @Transactional
     public void removerDiretoria(Long id) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
 
-        if (voluntario.getTipoUsuario() != TipoUsuario.DIRETOR_RAMO && voluntario.getTipoUsuario() != TipoUsuario.DIRETOR_CAPITULO) {
+        if (voluntario.getTipoUsuario() != TipoUsuario.DIRETOR_RAMO
+                && voluntario.getTipoUsuario() != TipoUsuario.DIRETOR_CAPITULO) {
             throw new RegraDeNegocioException("Este usuário não está atuando como um Diretor ativo.");
         }
 
-        List<Mandato> mandatos = mandatoRepository.findAll();
-        LocalDate hoje = LocalDate.now();
-        
-        for (Mandato m : mandatos) {
-            if (m.getDiretor().getVoluntarioId().equals(id)) {
-                boolean estariaAtivoOuFuturo = !hoje.isAfter(m.getDataFim());
-                if (estariaAtivoOuFuturo) {
-                    m.setDataFim(hoje);
-                    mandatoRepository.save(m);
-                }
-            }
-        }
+        mandatoService.encerrarMandatosAtivosOuFuturos(id);
 
         voluntario.setTipoUsuario(TipoUsuario.MEMBRO);
         voluntarioRepository.save(voluntario);
@@ -310,39 +272,25 @@ public class VoluntarioService {
     @Transactional
     public void alterarCargoDiretor(Long id, AtualizarCargoRequestDTO dto) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
 
-        if (voluntario.getTipoUsuario() != TipoUsuario.DIRETOR_RAMO && voluntario.getTipoUsuario() != TipoUsuario.DIRETOR_CAPITULO) {
+        if (voluntario.getTipoUsuario() != TipoUsuario.DIRETOR_RAMO
+                && voluntario.getTipoUsuario() != TipoUsuario.DIRETOR_CAPITULO) {
             throw new RegraDeNegocioException("Este usuário não é um Diretor ativo.");
         }
 
-        Cargo novoCargo = cargoRepository.findById(dto.getNovoCargoId())
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Novo Cargo informado não existe."));
-
+        Diretor diretor = diretorRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Diretor não encontrado."));
         LocalDate hoje = LocalDate.now();
-        List<Mandato> mandatos = mandatoRepository.findAll();
-        Diretor diretor = diretorRepository.findById(id).get();
-        
-        for (Mandato m : mandatos) {
-            if (m.getDiretor().getVoluntarioId().equals(id) && !hoje.isBefore(m.getDataInicio()) && !hoje.isAfter(m.getDataFim())) {
-                m.setDataFim(hoje);
-                mandatoRepository.save(m);
-            }
-        }
 
-        Mandato novoMandato = new Mandato();
-        novoMandato.setDiretor(diretor);
-        novoMandato.setCargo(novoCargo);
-        novoMandato.setDataInicio(hoje.plusDays(1)); 
-        novoMandato.setDataFim(dto.getDataFimNovoMandato());
-
-        mandatoRepository.save(novoMandato);
+        mandatoService.encerrarMandatosAtivosOuFuturos(id);
+        mandatoService.criarMandato(diretor, dto.getNovoCargoId(), hoje.plusDays(1), dto.getDataFimNovoMandato());
     }
 
     @Transactional
     public void alterarSenha(Long id, AlterarSenhaRequestDTO dto) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
 
         if (!passwordEncoder.matches(dto.getSenhaAtual(), voluntario.getSenha())) {
             throw new RegraDeNegocioException("A senha atual informada está incorreta.");
@@ -355,7 +303,7 @@ public class VoluntarioService {
     @Transactional
     public void adminAtualizarEmailCPF(Long id, AdminUpdateEmailCPFRequestDTO dto) {
         Voluntario voluntario = voluntarioRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
 
         if (dto.getNovoEmail() != null && !dto.getNovoEmail().equalsIgnoreCase(voluntario.getEmailPessoal())) {
             if (voluntarioRepository.findByEmailPessoal(dto.getNovoEmail()).isPresent()) {
