@@ -18,4 +18,6 @@ public class EventoRequestDTO {
     private String subcategoria;
     private BigDecimal orcamentoEstimado;
     private Set<String> unidadesCodigos;
+    private Integer qtdMembros;
+    private Integer qtdNaoMembros;
 }

@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type JSX } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { X, UserCheck, ShieldAlert, Award, Plus, Trash2 } from 'lucide-react';
 import { MainLayout } from './layouts/MainLayout';

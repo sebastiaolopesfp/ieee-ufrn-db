@@ -1,10 +1,17 @@
 package br.ufrn.ieee.database.organizacional.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import br.ufrn.ieee.database.evento.model.Evento;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "unidade_organizacional")
 public class UnidadeOrganizacional {
     @Id
@@ -19,4 +26,9 @@ public class UnidadeOrganizacional {
 
     @Column(name = "ano_criacao", nullable = false)
     private Integer anoCriacao;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToMany(mappedBy = "unidades")
+    private Set<Evento> eventos = new HashSet<>();
 }

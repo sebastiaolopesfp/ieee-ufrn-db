@@ -1,41 +1,130 @@
-// src/pages/Eventos.tsx
 import { useEffect, useState } from 'react';
-import { Calendar, MapPin, Clock, DollarSign, X, Activity, Users } from 'lucide-react';
+import { Calendar, MapPin, Activity, Plus } from 'lucide-react';
 import { MainLayout } from '../layouts/MainLayout';
-import { eventoService } from '../services/api';
+import { eventoService, type Evento } from '../services/api';
+import { Button } from '@/components/ui/button';
+
+import { EventoFormModal } from '../components/EventoFormModal';
+import { EventoPainel } from '../components/EventoPainel';
 
 export function Eventos() {
-  const [eventos, setEventos] = useState<any[]>([]);
+  const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // Controle de Permissão
+  const token = localStorage.getItem('token');
+  let userRole = 'VOLUNTARIO';
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      userRole = payload.role;
+    } catch (e) {}
+  }
+  const temPermissaoEdicao = ['ADMIN', 'DIRETOR_RAMO', 'DIRETOR_CAPITULO'].includes(userRole);
+
+  // Estados de Interface
   const [painelAberto, setPainelAberto] = useState(false);
-  const [eventoSelecionado, setEventoSelecionado] = useState<any | null>(null);
+  const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(null);
+  
+  const [modalFormAberto, setModalFormAberto] = useState(false);
+  const [modoForm, setModoForm] = useState<'criar' | 'editar'>('criar');
+  const [loadingAcao, setLoadingAcao] = useState(false);
 
-  useEffect(() => {
-    eventoService.listarTodos()
-      .then((dados) => {
-        setEventos(dados);
-        setLoading(false);
-      })
-      .catch((erro) => {
-        console.error("Erro ao carregar eventos:", erro);
-        setLoading(false);
-      });
-  }, []);
+  const carregarEventos = () => {
+    setLoading(true);
+    eventoService.listarTodos().then(setEventos).finally(() => setLoading(false));
+  };
 
-  const abrirPainel = async (evento: any) => {
-    setEventoSelecionado(evento);
-    setPainelAberto(true);
+  useEffect(() => { carregarEventos(); }, []);
+
+  // Handlers para abrir modais
+  const abrirCriacao = () => {
+    setModoForm('criar');
+    setEventoSelecionado(null);
+    setModalFormAberto(true);
+  };
+
+  const abrirEdicao = () => {
+    setModoForm('editar');
+    setModalFormAberto(true);
+  };
+
+  // Funções de submissão repassadas para o Modal
+  const salvarEventoLocal = async (dadosForm: any) => {
+    setLoadingAcao(true);
+    try {
+      const formatarDataParaInstant = (data: string) => {
+        if (!data) return data;
+        if (data.length === 16) return `${data}:00Z`;
+        if (data.length === 19) return `${data}Z`;
+        return data;
+      };
+
+      // Monta o payload base com as datas corrigidas
+      const payload: any = {
+        ...dadosForm,
+        dataInicio: formatarDataParaInstant(dadosForm.dataInicio), 
+        dataFim: formatarDataParaInstant(dadosForm.dataFim),
+      };
+      
+      // Só envia as unidades pro backend se o usuário tiver selecionado alguma
+      if (dadosForm.unidadeCodigo && dadosForm.unidadeCodigo !== '') {
+        payload.unidadesCodigos = [dadosForm.unidadeCodigo];
+      }
+      
+      // Limpa a sujeira do form antes de mandar pro Java
+      delete payload.unidadeCodigo;
+      
+      if (modoForm === 'criar') {
+        await eventoService.criarLocal(payload);
+      } else if (eventoSelecionado) {
+        const atualizado = await eventoService.atualizarLocal(eventoSelecionado.id, payload);
+        setEventoSelecionado(atualizado);
+      }
+      
+      setModalFormAberto(false);
+      carregarEventos();
+    } catch (error: any) {
+      console.error("ERRO COMPLETO:", error.response?.data);
+      alert(`Erro ao salvar: ${error.response?.data?.message || 'Verifique o console do navegador.'}`);
+    } finally {
+      setLoadingAcao(false);
+    }
+  };
+
+  const importarVTools = async (vtoolsId: string, unidadeCodigo: string) => {
+    setLoadingAcao(true);
+    try {
+      await eventoService.importarVTools(vtoolsId, unidadeCodigo);
+      setModalFormAberto(false);
+      carregarEventos();
+    } catch (error) {
+      alert("Erro ao importar do vTools. Verifique o ID.");
+    } finally {
+      setLoadingAcao(false);
+    }
+  };
+
+  const deletarEvento = async () => {
+    if (!eventoSelecionado || !confirm("Tem certeza que deseja apagar este evento?")) return;
+    try {
+      await eventoService.deletar(eventoSelecionado.id);
+      setPainelAberto(false);
+      carregarEventos();
+    } catch (error) {
+      alert("Erro ao apagar evento.");
+    }
   };
 
   return (
     <MainLayout titulo="Gestão de Eventos">
-      
       <div className="mb-6 flex justify-between items-center">
         <h2 className="text-gray-500 font-medium">Próximas atividades e histórico do Ramo</h2>
-        <button className="bg-[#0F81CA] hover:bg-[#0c6ba8] text-white px-4 py-2 rounded-sm font-medium text-sm transition-colors shadow-sm">
-          + Criar Evento
-        </button>
+        {temPermissaoEdicao && (
+          <Button onClick={abrirCriacao} className="bg-[#0F81CA] hover:bg-[#0c6ba8] text-white rounded-sm font-medium">
+            <Plus size={16} className="mr-2" /> Criar Evento
+          </Button>
+        )}
       </div>
 
       {loading ? (
@@ -45,10 +134,9 @@ export function Eventos() {
           {eventos.map((ev) => (
             <div 
               key={ev.id} 
-              onClick={() => abrirPainel(ev)}
+              onClick={() => { setEventoSelecionado(ev); setPainelAberto(true); }}
               className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 hover:border-[#0F81CA] hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
             >
-              {/* Barra lateral interativa */}
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0F81CA] opacity-0 group-hover:opacity-100 transition-opacity"></div>
               
               <div className="flex justify-between items-start mb-4">
@@ -65,11 +153,9 @@ export function Eventos() {
                   </span>
                 )}
               </div>
-              
-              <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[#0F81CA] transition-colors">
+              <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[#0F81CA] transition-colors line-clamp-2">
                 {ev.titulo}
               </h3>
-              
               <div className="space-y-2 mt-4">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Calendar size={16} className="text-[#0F81CA]" />
@@ -82,88 +168,28 @@ export function Eventos() {
               </div>
             </div>
           ))}
-          
-          {eventos.length === 0 && (
-            <div className="col-span-full text-center py-12 text-gray-400 bg-white border border-dashed border-[#C6EBFF] rounded-sm">
-              Nenhum evento registado. Prepare o seu primeiro evento (ex: o TechX Natal26)!
-            </div>
-          )}
         </div>
       )}
 
-      {/* PAINEL LATERAL (Light Mode) */}
-      <div 
-        className={`fixed inset-y-0 right-0 w-full md:w-[500px] bg-white border-l border-[#C6EBFF] shadow-2xl transform transition-transform duration-300 ease-in-out z-50 flex flex-col
-        ${painelAberto ? 'translate-x-0' : 'translate-x-full'}`}
-      >
-        <div className="p-6 border-b border-[#C6EBFF] flex justify-between items-center bg-[#F9FCFF]">
-          <h2 className="text-lg font-bold text-[#0F81CA] truncate pr-4">{eventoSelecionado?.titulo}</h2>
-          <button 
-            onClick={() => setPainelAberto(false)}
-            className="p-2 hover:bg-[#C6EBFF]/50 rounded-full text-gray-400 hover:text-[#0F81CA] transition-colors flex-shrink-0"
-          >
-            <X size={20} />
-          </button>
-        </div>
+      {/* Componentes extraídos */}
+      <EventoPainel 
+        evento={eventoSelecionado} 
+        isOpen={painelAberto} 
+        onClose={setPainelAberto}
+        temPermissaoEdicao={temPermissaoEdicao}
+        onEdit={abrirEdicao}
+        onDelete={deletarEvento}
+      />
 
-        {eventoSelecionado && (
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
-            
-            <p className="text-gray-700 text-sm leading-relaxed bg-gray-50 p-4 rounded-sm border border-gray-100">
-              {eventoSelecionado.descricao}
-            </p>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white border border-[#C6EBFF] p-4 rounded-sm shadow-sm">
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  <Users size={16} className="text-[#0F81CA]" />
-                  <span className="text-xs font-semibold uppercase">Público Esperado</span>
-                </div>
-                <div className="text-2xl font-bold text-gray-900">
-                  {eventoSelecionado.qtdMembros + eventoSelecionado.qtdNaoMembros} <span className="text-sm font-normal text-gray-500">pessoas</span>
-                </div>
-              </div>
-
-              <div className="bg-white border border-[#C6EBFF] p-4 rounded-sm shadow-sm">
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  <DollarSign size={16} className="text-emerald-600" />
-                  <span className="text-xs font-semibold uppercase">Orçamento</span>
-                </div>
-                <div className="text-2xl font-bold text-emerald-700">
-                  R$ {eventoSelecionado.orcamentoEstimado.toFixed(2)}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-gray-100 space-y-3">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">Ações Operacionais</h3>
-              
-              <button className="w-full flex items-center justify-between bg-white hover:bg-[#F4FAFF] p-4 rounded-sm border border-gray-200 hover:border-[#C6EBFF] transition-colors group">
-                <div className="flex items-center gap-3">
-                  <Clock size={20} className="text-[#0F81CA]" />
-                  <span className="font-medium text-sm text-gray-700 group-hover:text-[#0F81CA]">Cronograma e Sessões</span>
-                </div>
-                <span className="text-gray-400 text-xs group-hover:text-[#0F81CA]">&rarr;</span>
-              </button>
-
-              <button className="w-full flex items-center justify-between bg-white hover:bg-[#F4FAFF] p-4 rounded-sm border border-gray-200 hover:border-[#C6EBFF] transition-colors group">
-                <div className="flex items-center gap-3">
-                  <DollarSign size={20} className="text-emerald-600" />
-                  <span className="font-medium text-sm text-gray-700 group-hover:text-emerald-700">Itens de Orçamento</span>
-                </div>
-                <span className="text-gray-400 text-xs group-hover:text-emerald-600">&rarr;</span>
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-      
-      {painelAberto && (
-        <div 
-          className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm z-40"
-          onClick={() => setPainelAberto(false)}
-        />
-      )}
+      <EventoFormModal 
+        isOpen={modalFormAberto}
+        onClose={setModalFormAberto}
+        modo={modoForm}
+        eventoEdicao={eventoSelecionado}
+        loading={loadingAcao}
+        onSalvarLocal={salvarEventoLocal}
+        onImportarVTools={importarVTools}
+      />
     </MainLayout>
   );
 }

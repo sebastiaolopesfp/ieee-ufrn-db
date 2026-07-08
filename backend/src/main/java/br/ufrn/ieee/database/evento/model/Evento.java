@@ -2,6 +2,9 @@ package br.ufrn.ieee.database.evento.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
@@ -56,6 +59,8 @@ public class Evento {
     @Column(name = "orcamento_estimado", nullable = false, precision = 10, scale = 2)
     private BigDecimal orcamentoEstimado = BigDecimal.ZERO;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "evento_unidade", joinColumns = @JoinColumn(name = "evento_id"), inverseJoinColumns = @JoinColumn(name = "unidade_codigo", referencedColumnName = "unidade_codigo"))
     private Set<UnidadeOrganizacional> unidades = new HashSet<>();

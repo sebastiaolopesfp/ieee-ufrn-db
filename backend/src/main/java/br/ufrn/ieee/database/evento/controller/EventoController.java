@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/eventos")
@@ -43,10 +44,28 @@ public class EventoController {
         return ResponseEntity.ok(eventoService.importarOuAtualizarDoVTools(vtoolsId, unidadeCodigo));
     }
 
+    @PutMapping("/local/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
+    public ResponseEntity<EventoResponseDTO> atualizarLocalmente(
+            @PathVariable Long id,
+            @RequestBody EventoRequestDTO dto) {
+        return ResponseEntity.ok(eventoService.atualizarLocalmente(id, dto));
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         eventoService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/categorias")
+    public ResponseEntity<Map<String, String>> listarCategorias() {
+        return ResponseEntity.ok(eventoService.listarCategorias());
+    }
+
+    @GetMapping("/subcategorias")
+    public ResponseEntity<Map<String, String>> listarSubcategorias() {
+        return ResponseEntity.ok(eventoService.listarSubcategorias());
     }
 }

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Calendar, DollarSign, Settings, LogOut, LayoutGrid, ShieldAlert } from 'lucide-react';
 

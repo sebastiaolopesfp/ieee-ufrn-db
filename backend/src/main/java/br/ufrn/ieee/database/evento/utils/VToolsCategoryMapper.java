@@ -54,4 +54,12 @@ public class VToolsCategoryMapper {
             return null;
         return SUBCATEGORIES.getOrDefault(id, "Subcategoria ID: " + id);
     }
+
+    public Map<String, String> getCategorias() {
+        return CATEGORIES;
+    }
+
+    public Map<String, String> getSubcategorias() {
+        return SUBCATEGORIES;
+    }
 }

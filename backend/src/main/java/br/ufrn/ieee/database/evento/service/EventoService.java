@@ -10,12 +10,15 @@ import br.ufrn.ieee.database.evento.utils.VToolsCategoryMapper;
 import br.ufrn.ieee.database.organizacional.model.UnidadeOrganizacional;
 import br.ufrn.ieee.database.organizacional.repository.UnidadeOrganizacionalRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
+import br.ufrn.ieee.database.shared.exception.RegraDeNegocioException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -128,6 +131,48 @@ public class EventoService {
     }
 
     @Transactional
+    public EventoResponseDTO atualizarLocalmente(Long id, EventoRequestDTO dto) {
+        Evento evento = buscarEntidadeOuFalhar(id);
+
+        if (evento.getStatusSincronizacao() != StatusSincronizacao.LOCAL_APENAS) {
+            throw new RegraDeNegocioException(
+                    "Eventos importados do vTools devem ser alterados na plataforma oficial.");
+        }
+
+        // Atualiza os dados permitidos
+        if (dto.getTitulo() != null)
+            evento.setTitulo(dto.getTitulo());
+        if (dto.getDescricao() != null)
+            evento.setDescricao(dto.getDescricao());
+        if (dto.getDataInicio() != null)
+            evento.setDataInicio(dto.getDataInicio());
+        if (dto.getDataFim() != null)
+            evento.setDataFim(dto.getDataFim());
+        if (dto.getLocationType() != null)
+            evento.setLocationType(dto.getLocationType());
+        if (dto.getCategoria() != null)
+            evento.setCategoria(dto.getCategoria());
+        if (dto.getSubcategoria() != null)
+            evento.setSubcategoria(dto.getSubcategoria());
+        if (dto.getOrcamentoEstimado() != null)
+            evento.setOrcamentoEstimado(dto.getOrcamentoEstimado());
+
+        // 👉 ADICIONE ESTAS DUAS LINHAS AQUI:
+        if (dto.getQtdMembros() != null)
+            evento.setQtdMembros(dto.getQtdMembros());
+        if (dto.getQtdNaoMembros() != null)
+            evento.setQtdNaoMembros(dto.getQtdNaoMembros());
+
+        // Atualiza os vínculos organizacionais se foram enviados
+        if (dto.getUnidadesCodigos() != null) {
+            evento.getUnidades().clear();
+            vincularUnidades(evento, dto.getUnidadesCodigos());
+        }
+
+        return toResponseDTO(eventoRepository.save(evento));
+    }
+
+    @Transactional
     public void deletar(Long id) {
         Evento evento = buscarEntidadeOuFalhar(id);
         eventoRepository.delete(evento);
@@ -185,5 +230,13 @@ public class EventoService {
         dto.setUnidadesCodigos(codigos);
 
         return dto;
+    }
+
+    public Map<String, String> listarCategorias() {
+        return categoryMapper.getCategorias();
+    }
+
+    public Map<String, String> listarSubcategorias() {
+        return categoryMapper.getSubcategorias();
     }
 }
