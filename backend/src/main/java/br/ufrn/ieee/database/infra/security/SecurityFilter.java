@@ -5,57 +5,50 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import br.ufrn.ieee.database.voluntario.repository.VoluntarioRepository;
-
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final VoluntarioRepository voluntarioRepository;
+    private static final String BEARER_PREFIX = "Bearer ";
 
-    public SecurityFilter(TokenService tokenService, VoluntarioRepository voluntarioRepository) {
+    public SecurityFilter(TokenService tokenService) {
         this.tokenService = tokenService;
-        this.voluntarioRepository = voluntarioRepository;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
+
         var token = this.recoverToken(request);
-        
+
         if (token != null) {
             var email = tokenService.validarToken(token);
-            
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails user = voluntarioRepository.findByEmailPessoal(email)
-                        .map(voluntario -> org.springframework.security.core.userdetails.User.withUsername(voluntario.getEmailPessoal())
-                                .password(voluntario.getSenha())
-                                .roles(voluntario.getTipoUsuario().name())
-                                .build())
-                        .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+            var role = tokenService.extrairRole(token);
 
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            if (email != null && role != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                var authority = new SimpleGrantedAuthority("ROLE_" + role);
+
+                var authentication = new UsernamePasswordAuthenticationToken(email, null,
+                        Collections.singletonList(authority));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
-        
+
         filterChain.doFilter(request, response);
     }
 
     private String recoverToken(HttpServletRequest request) {
         var authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             return null;
         }
-        return authHeader.replace("Bearer ", "");
+        return authHeader.replace(BEARER_PREFIX, "");
     }
 }

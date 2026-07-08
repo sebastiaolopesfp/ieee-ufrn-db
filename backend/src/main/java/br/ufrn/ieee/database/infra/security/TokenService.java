@@ -19,7 +19,7 @@ public class TokenService {
     public String gerarToken(String email, String role) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
-            
+
             return JWT.create()
                     .withIssuer("ieee-database-api")
                     .withSubject(email)
@@ -39,6 +39,19 @@ public class TokenService {
                     .build()
                     .verify(token)
                     .getSubject();
+        } catch (JWTVerificationException exception) {
+            return null;
+        }
+    }
+
+    public String extrairRole(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            return JWT.require(algorithm)
+                    .withIssuer("ieee-database-api")
+                    .build()
+                    .verify(token)
+                    .getClaim("role").asString();
         } catch (JWTVerificationException exception) {
             return null;
         }

@@ -5,6 +5,7 @@ import br.ufrn.ieee.database.organizacional.dto.RamoEstudantilResponseDTO;
 import br.ufrn.ieee.database.organizacional.service.RamoEstudantilService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,16 +31,20 @@ public class RamoEstudantilController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RamoEstudantilResponseDTO> criar(@RequestBody RamoEstudantilRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ramoService.criar(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RamoEstudantilResponseDTO> atualizar(@PathVariable String id, @RequestBody RamoEstudantilRequestDTO dto) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RamoEstudantilResponseDTO> atualizar(@PathVariable String id,
+            @RequestBody RamoEstudantilRequestDTO dto) {
         return ResponseEntity.ok(ramoService.atualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletar(@PathVariable String id) {
         ramoService.deletar(id);
         return ResponseEntity.noContent().build();

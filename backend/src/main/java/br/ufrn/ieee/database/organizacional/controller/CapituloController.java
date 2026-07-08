@@ -5,6 +5,7 @@ import br.ufrn.ieee.database.organizacional.dto.CapituloResponseDTO;
 import br.ufrn.ieee.database.organizacional.service.CapituloService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,17 +31,20 @@ public class CapituloController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CapituloResponseDTO> criar(@RequestBody CapituloRequestDTO dto) {
         CapituloResponseDTO capituloCriado = capituloService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(capituloCriado);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CapituloResponseDTO> atualizar(@PathVariable String id, @RequestBody CapituloRequestDTO dto) {
         return ResponseEntity.ok(capituloService.atualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletar(@PathVariable String id) {
         capituloService.deletar(id);
         return ResponseEntity.noContent().build();

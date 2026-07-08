@@ -5,6 +5,7 @@ import br.ufrn.ieee.database.evento.dto.EventoResponseDTO;
 import br.ufrn.ieee.database.evento.service.EventoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -29,11 +30,13 @@ public class EventoController {
     }
 
     @PostMapping("/local")
+    @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
     public ResponseEntity<EventoResponseDTO> criarLocalmente(@RequestBody EventoRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(eventoService.criarLocalmente(dto));
     }
 
     @PostMapping("/vtools")
+    @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
     public ResponseEntity<EventoResponseDTO> importarOuAtualizarDoVTools(
             @RequestParam String vtoolsId,
             @RequestParam(required = false) String unidadeCodigo) {
@@ -41,6 +44,7 @@ public class EventoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         eventoService.deletar(id);
         return ResponseEntity.noContent().build();

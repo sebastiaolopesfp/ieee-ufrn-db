@@ -5,6 +5,7 @@ import br.ufrn.ieee.database.academico.dto.ContratoResponseDTO;
 import br.ufrn.ieee.database.academico.service.ContratoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,17 +31,20 @@ public class ContratoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
     public ResponseEntity<ContratoResponseDTO> criar(@RequestBody ContratoRequestDTO dto) {
         ContratoResponseDTO contratoCriado = contratoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(contratoCriado);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
     public ResponseEntity<ContratoResponseDTO> atualizar(@PathVariable Long id, @RequestBody ContratoRequestDTO dto) {
         return ResponseEntity.ok(contratoService.atualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         contratoService.deletar(id);
         return ResponseEntity.noContent().build();

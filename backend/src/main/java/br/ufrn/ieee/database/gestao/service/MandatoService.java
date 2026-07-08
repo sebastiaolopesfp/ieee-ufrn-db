@@ -39,7 +39,7 @@ public class MandatoService {
 
     @Transactional
     public void encerrarMandatosAtivosOuFuturos(Long diretorId) {
-        List<Mandato> mandatos = mandatoRepository.findAll();
+        List<Mandato> mandatos = mandatoRepository.findByDiretorVoluntarioId(diretorId);
         LocalDate hoje = LocalDate.now();
 
         for (Mandato m : mandatos) {
@@ -55,7 +55,7 @@ public class MandatoService {
 
     @Transactional(readOnly = true)
     public List<MandatoResponseDTO> obterHistoricoMandatos(Long diretorId, boolean isDiretorAtivo) {
-        List<Mandato> mandatos = mandatoRepository.findAll();
+        List<Mandato> mandatos = mandatoRepository.findByDiretorVoluntarioId(diretorId);
         LocalDate hoje = LocalDate.now();
 
         return mandatos.stream()
