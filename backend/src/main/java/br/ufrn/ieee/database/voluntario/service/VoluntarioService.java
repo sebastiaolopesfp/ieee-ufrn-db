@@ -177,16 +177,21 @@ public class VoluntarioService {
             membro.setDataFim(null);
             membro.setNumMembresia(dto.getNumeroMembresia());
             membro.setTipoMembresia(dto.getTipoMembresia());
-            membro.setEmailIeee(dto.getEmailIeee());
+            String emailIeee = dto.getEmailIeee();
+            if (emailIeee != null && emailIeee.trim().isEmpty()) {
+                emailIeee = null;
+            }
+            membro.setEmailIeee(emailIeee);
         } else {
             membro = new Membro();
             membro.setVoluntario(voluntario);
-            membro.setVoluntarioId(voluntario.getId());
             membro.setNumMembresia(dto.getNumeroMembresia());
             membro.setTipoMembresia(dto.getTipoMembresia());
             membro.setEmailIeee(dto.getEmailIeee());
             membro.setDataInicio(LocalDate.now());
             membro.setDataFim(null);
+
+            voluntario.setMembro(membro);
         }
 
         membroRepository.save(membro);
@@ -216,9 +221,7 @@ public class VoluntarioService {
         if (!diretorRepository.existsById(id)) {
             diretor = new Diretor();
             diretor.setMembro(membro);
-            diretor.setVoluntarioId(membro.getVoluntarioId());
-            membro.setDiretor(diretor);
-            membroRepository.save(membro);
+            diretor = diretorRepository.saveAndFlush(diretor); 
         } else {
             diretor = diretorRepository.findById(id).get();
         }
