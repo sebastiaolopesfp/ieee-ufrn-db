@@ -2,6 +2,7 @@ package br.ufrn.ieee.database.voluntario.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import br.ufrn.ieee.database.academico.model.Vinculo;
 
 @Data
+@EqualsAndHashCode(exclude = { "membro" })
 @Entity
 @Table(name = "voluntario")
 public class Voluntario {

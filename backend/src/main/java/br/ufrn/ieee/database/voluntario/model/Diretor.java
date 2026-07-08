@@ -2,8 +2,10 @@ package br.ufrn.ieee.database.voluntario.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(exclude = { "membro" })
 @Entity
 @Table(name = "diretor")
 public class Diretor {

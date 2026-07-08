@@ -2,9 +2,11 @@ package br.ufrn.ieee.database.voluntario.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import java.time.LocalDate;
 
 @Data
+@EqualsAndHashCode(exclude = { "voluntario", "diretor" })
 @Entity
 @Table(name = "membro")
 public class Membro {

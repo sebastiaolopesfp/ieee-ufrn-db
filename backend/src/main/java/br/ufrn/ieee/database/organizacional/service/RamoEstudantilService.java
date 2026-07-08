@@ -19,8 +19,8 @@ public class RamoEstudantilService {
     private final RamoEstudantilRepository ramoRepository;
     private final UnidadeOrganizacionalRepository unidadeRepository;
 
-    public RamoEstudantilService(RamoEstudantilRepository ramoRepository, 
-                                 UnidadeOrganizacionalRepository unidadeRepository) {
+    public RamoEstudantilService(RamoEstudantilRepository ramoRepository,
+            UnidadeOrganizacionalRepository unidadeRepository) {
         this.ramoRepository = ramoRepository;
         this.unidadeRepository = unidadeRepository;
     }
@@ -51,8 +51,6 @@ public class RamoEstudantilService {
 
         RamoEstudantil ramo = new RamoEstudantil();
         ramo.setUnidade(unidade);
-        ramo.setUnidadeCodigo(unidade.getUnidadeCodigo());
-        
         RamoEstudantil ramoSalvo = ramoRepository.save(ramo);
         return toResponseDTO(ramoSalvo);
     }
@@ -62,9 +60,12 @@ public class RamoEstudantilService {
         RamoEstudantil ramo = buscarEntidadeOuFalhar(id);
         UnidadeOrganizacional unidade = ramo.getUnidade();
 
-        if (dto.getNome() != null) unidade.setNome(dto.getNome());
-        if (dto.getEmail() != null) unidade.setEmail(dto.getEmail());
-        if (dto.getAnoCriacao() != null) unidade.setAnoCriacao(dto.getAnoCriacao());
+        if (dto.getNome() != null)
+            unidade.setNome(dto.getNome());
+        if (dto.getEmail() != null)
+            unidade.setEmail(dto.getEmail());
+        if (dto.getAnoCriacao() != null)
+            unidade.setAnoCriacao(dto.getAnoCriacao());
 
         unidadeRepository.save(unidade);
         return toResponseDTO(ramo);
@@ -74,14 +75,15 @@ public class RamoEstudantilService {
     public void deletar(String id) {
         RamoEstudantil ramo = buscarEntidadeOuFalhar(id);
         UnidadeOrganizacional unidade = ramo.getUnidade();
-        
+
         ramoRepository.delete(ramo);
-        unidadeRepository.delete(unidade); // Exclui a base em cascata manual
+        unidadeRepository.delete(unidade);
     }
 
     private RamoEstudantil buscarEntidadeOuFalhar(String id) {
         return ramoRepository.findById(id)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Ramo Estudantil não encontrado com Código: " + id));
+                .orElseThrow(
+                        () -> new EntidadeNaoEncontradaException("Ramo Estudantil não encontrado com Código: " + id));
     }
 
     private RamoEstudantilResponseDTO toResponseDTO(RamoEstudantil ramo) {

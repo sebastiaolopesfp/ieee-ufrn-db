@@ -22,9 +22,9 @@ public class CapituloService {
     private final UnidadeOrganizacionalRepository unidadeRepository;
     private final RamoEstudantilRepository ramoRepository;
 
-    public CapituloService(CapituloRepository capituloRepository, 
-                           UnidadeOrganizacionalRepository unidadeRepository,
-                           RamoEstudantilRepository ramoRepository) {
+    public CapituloService(CapituloRepository capituloRepository,
+            UnidadeOrganizacionalRepository unidadeRepository,
+            RamoEstudantilRepository ramoRepository) {
         this.capituloRepository = capituloRepository;
         this.unidadeRepository = unidadeRepository;
         this.ramoRepository = ramoRepository;
@@ -52,7 +52,6 @@ public class CapituloService {
         RamoEstudantil ramo = ramoRepository.findById(dto.getRamoCodigo())
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Ramo Estudantil não encontrado."));
 
-        // 1. Cria a base (UnidadeOrganizacional)
         UnidadeOrganizacional unidade = new UnidadeOrganizacional();
         unidade.setUnidadeCodigo(dto.getUnidadeCodigo());
         unidade.setNome(dto.getNome());
@@ -60,12 +59,10 @@ public class CapituloService {
         unidade.setAnoCriacao(dto.getAnoCriacao());
         unidade = unidadeRepository.save(unidade);
 
-        // 2. Cria o Capítulo e vincula
         Capitulo capitulo = new Capitulo();
         capitulo.setUnidade(unidade);
-        capitulo.setUnidadeCodigo(unidade.getUnidadeCodigo());
         capitulo.setRamo(ramo);
-        
+
         Capitulo capituloSalvo = capituloRepository.save(capitulo);
         return toResponseDTO(capituloSalvo);
     }
@@ -75,9 +72,12 @@ public class CapituloService {
         Capitulo capitulo = buscarEntidadeOuFalhar(id);
         UnidadeOrganizacional unidade = capitulo.getUnidade();
 
-        if (dto.getNome() != null) unidade.setNome(dto.getNome());
-        if (dto.getEmail() != null) unidade.setEmail(dto.getEmail());
-        if (dto.getAnoCriacao() != null) unidade.setAnoCriacao(dto.getAnoCriacao());
+        if (dto.getNome() != null)
+            unidade.setNome(dto.getNome());
+        if (dto.getEmail() != null)
+            unidade.setEmail(dto.getEmail());
+        if (dto.getAnoCriacao() != null)
+            unidade.setAnoCriacao(dto.getAnoCriacao());
 
         if (dto.getRamoCodigo() != null && !dto.getRamoCodigo().equals(capitulo.getRamo().getUnidadeCodigo())) {
             RamoEstudantil novoRamo = ramoRepository.findById(dto.getRamoCodigo())
@@ -87,7 +87,7 @@ public class CapituloService {
 
         unidadeRepository.save(unidade);
         Capitulo capituloAtualizado = capituloRepository.save(capitulo);
-        
+
         return toResponseDTO(capituloAtualizado);
     }
 

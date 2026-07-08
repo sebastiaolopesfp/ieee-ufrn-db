@@ -22,9 +22,9 @@ public class GrupoDeAfinidadeService {
     private final UnidadeOrganizacionalRepository unidadeRepository;
     private final RamoEstudantilRepository ramoRepository;
 
-    public GrupoDeAfinidadeService(GrupoDeAfinidadeRepository grupoRepository, 
-                                   UnidadeOrganizacionalRepository unidadeRepository,
-                                   RamoEstudantilRepository ramoRepository) {
+    public GrupoDeAfinidadeService(GrupoDeAfinidadeRepository grupoRepository,
+            UnidadeOrganizacionalRepository unidadeRepository,
+            RamoEstudantilRepository ramoRepository) {
         this.grupoRepository = grupoRepository;
         this.unidadeRepository = unidadeRepository;
         this.ramoRepository = ramoRepository;
@@ -59,9 +59,8 @@ public class GrupoDeAfinidadeService {
 
         GrupoDeAfinidade grupo = new GrupoDeAfinidade();
         grupo.setUnidade(unidade);
-        grupo.setUnidadeCodigo(unidade.getUnidadeCodigo());
         grupo.setRamo(ramo);
-        
+
         GrupoDeAfinidade grupoSalvo = grupoRepository.save(grupo);
         return toResponseDTO(grupoSalvo);
     }
@@ -71,9 +70,12 @@ public class GrupoDeAfinidadeService {
         GrupoDeAfinidade grupo = buscarEntidadeOuFalhar(id);
         UnidadeOrganizacional unidade = grupo.getUnidade();
 
-        if (dto.getNome() != null) unidade.setNome(dto.getNome());
-        if (dto.getEmail() != null) unidade.setEmail(dto.getEmail());
-        if (dto.getAnoCriacao() != null) unidade.setAnoCriacao(dto.getAnoCriacao());
+        if (dto.getNome() != null)
+            unidade.setNome(dto.getNome());
+        if (dto.getEmail() != null)
+            unidade.setEmail(dto.getEmail());
+        if (dto.getAnoCriacao() != null)
+            unidade.setAnoCriacao(dto.getAnoCriacao());
 
         if (dto.getRamoCodigo() != null && !dto.getRamoCodigo().equals(grupo.getRamo().getUnidadeCodigo())) {
             RamoEstudantil novoRamo = ramoRepository.findById(dto.getRamoCodigo())
@@ -90,14 +92,15 @@ public class GrupoDeAfinidadeService {
     public void deletar(String id) {
         GrupoDeAfinidade grupo = buscarEntidadeOuFalhar(id);
         UnidadeOrganizacional unidade = grupo.getUnidade();
-        
+
         grupoRepository.delete(grupo);
-        unidadeRepository.delete(unidade); // Exclui a base em cascata manual
+        unidadeRepository.delete(unidade);
     }
 
     private GrupoDeAfinidade buscarEntidadeOuFalhar(String id) {
         return grupoRepository.findById(id)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Grupo de Afinidade não encontrado com Código: " + id));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException(
+                        "Grupo de Afinidade não encontrado com Código: " + id));
     }
 
     private GrupoDeAfinidadeResponseDTO toResponseDTO(GrupoDeAfinidade grupo) {
