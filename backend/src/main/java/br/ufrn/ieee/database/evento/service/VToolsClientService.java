@@ -1,7 +1,6 @@
 package br.ufrn.ieee.database.evento.service;
 
 import br.ufrn.ieee.database.evento.dto.vtools.VToolsApiResponseDTO;
-import br.ufrn.ieee.database.evento.dto.vtools.VToolsEventAttributesDTO;
 import br.ufrn.ieee.database.evento.dto.vtools.VToolsEventDataDTO;
 import br.ufrn.ieee.database.shared.exception.RegraDeNegocioException;
 import org.springframework.http.ResponseEntity;

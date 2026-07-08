@@ -2,7 +2,6 @@ package br.ufrn.ieee.database.evento.service;
 
 import br.ufrn.ieee.database.evento.dto.EventoRequestDTO;
 import br.ufrn.ieee.database.evento.dto.EventoResponseDTO;
-import br.ufrn.ieee.database.evento.dto.vtools.VToolsEventAttributesDTO;
 import br.ufrn.ieee.database.evento.model.Evento;
 import br.ufrn.ieee.database.evento.model.StatusSincronizacao;
 import br.ufrn.ieee.database.evento.model.LocationType;

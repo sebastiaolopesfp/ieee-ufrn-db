@@ -32,6 +32,7 @@ public class VoluntarioController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO') or @voluntarioSecurity.isOwner(#id, authentication)")
     public ResponseEntity<VoluntarioResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(voluntarioService.buscarPorId(id));
     }
