@@ -57,17 +57,14 @@ export const voluntarioService = {
     const response = await api.get(`/api/voluntarios/${id}/perfil`);
     return response.data;
   },
-  // 1. Cadastrar novo voluntário (Rota Pública no backend)
   cadastrar: async (dados: any) => {
     const response = await api.post('/api/voluntarios/cadastro', dados);
     return response.data;
   },
-  // 2. Promover Voluntário a Membro IEEE
   promoverAMembro: async (id: number, dados: any) => {
     const response = await api.post(`/api/voluntarios/${id}/promover-membro`, dados);
     return response.data;
   },
-  // 3. Nomear Membro para a Diretoria
   promoverADiretor: async (id: number, dados: any) => {
     const response = await api.post(`/api/voluntarios/${id}/promover-diretor`, dados);
     return response.data;
@@ -82,23 +79,6 @@ export const voluntarioService = {
   }
 };
 
-export const cargoService = {
-  // 2. CORREÇÃO: A rota correta do CargoController é /api/cargos
-  listarTodos: async () => {
-    const response = await api.get('/api/cargos');
-    return response.data;
-  }
-};
-
-export const unidadeService = {
-  listarTodas: async () => {
-    // Altere a rota '/api/capitulos' se o seu Controller mapear para outro nome (ex: /api/unidades)
-    const response = await api.get('/api/capitulos'); 
-    return response.data;
-  }
-};
-
-// --- MÓDULO DE EVENTOS E SESSÕES ---
 export const eventoService = {
   listarTodos: async (): Promise<Evento[]> => {
     const response = await api.get('/api/eventos');
@@ -113,7 +93,6 @@ export const eventoService = {
     return response.data;
   },
   importarVTools: async (vtoolsId: string, unidadeCodigo: string): Promise<Evento> => {
-    // Passando via Query Params
     const response = await api.post(`/api/eventos/vtools?vtoolsId=${vtoolsId}&unidadeCodigo=${unidadeCodigo}`);
     return response.data;
   },
@@ -145,6 +124,94 @@ export const sessaoService = {
   },
   registrarPresenca: async (sessaoId: number, voluntarioIds: number[]): Promise<Sessao> => {
     const response = await api.post(`/api/sessoes/${sessaoId}/presenca`, voluntarioIds);
+    return response.data;
+  }
+};
+
+export const capituloService = {
+  listarTodos: async () => {
+    const response = await api.get('/api/capitulos');
+    return response.data;
+  },
+  criar: async (dados: { unidadeCodigo: string; nome: string; email: string; anoCriacao: number; ramoCodigo: string }) => {
+    const response = await api.post('/api/capitulos', dados);
+    return response.data;
+  },
+  deletar: async (id: string) => {
+    const response = await api.delete(`/api/capitulos/${id}`);
+    return response.data;
+  }
+};
+
+export const ramoEstudantilService = {
+  listarTodos: async () => {
+    const response = await api.get('/api/ramos-estudantis');
+    return response.data;
+  }
+};
+
+export const grupoAfinidadeService = {
+  listarTodos: async () => {
+    const response = await api.get('/api/grupos-afinidade');
+    return response.data;
+  }
+};
+
+export const cargoService = {
+  listarTodos: async () => {
+    const response = await api.get('/api/cargos');
+    return response.data;
+  },
+  criar: async (dados: { nome: string; descricao: string }) => {
+    const response = await api.post('/api/cargos', dados);
+    return response.data;
+  },
+  deletar: async (id: number) => {
+    const response = await api.delete(`/api/cargos/${id}`);
+    return response.data;
+  }
+};
+
+export const unidadeService = {
+  listarTodas: async () => {
+    const response = await api.get('/api/capitulos'); 
+    return response.data;
+  }
+};
+
+export const instituicaoService = {
+  listarTodas: async () => {
+    const response = await api.get('/api/instituicoes');
+    return response.data;
+  },
+  criar: async (dados: { nome: string; sigla: string }) => {
+    const response = await api.post('/api/instituicoes', dados);
+    return response.data;
+  },
+  listarCursosPorInstituicao: async (id: number) => {
+    const response = await api.get(`/api/instituicoes/${id}/cursos`);
+    return response.data;
+  }
+};
+
+export const cursoService = {
+  listarTodos: async () => {
+    const response = await api.get('/api/cursos');
+    return response.data;
+  },
+  criar: async (dados: { nome: string; instituicaoId: number }) => {
+    const response = await api.post('/api/cursos', dados);
+    return response.data;
+  }
+};
+
+export const vinculoAcademicoService = {
+  obterPorVoluntario: async (voluntarioId: number) => {
+    const response = await api.get(`/api/vinculos/${voluntarioId}`);
+    return response.data;
+  },
+  salvar: async (dados: { voluntarioId?: number; cursoId: number; matricula: string; emailInstitucional: string }) => {
+    const response = await api.post('/api/vinculos', dados);
     return response.data;
   }
 };
