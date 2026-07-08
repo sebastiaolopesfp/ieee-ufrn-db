@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type JSX } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { X, UserCheck, ShieldAlert, Award, Plus, Trash2 } from 'lucide-react';
 import { MainLayout } from './layouts/MainLayout';
@@ -7,6 +7,8 @@ import { voluntarioService, cargoService } from './services/api';
 import { Login } from './pages/Login';
 import { Eventos } from './pages/Eventos';
 import { Diretorias } from './pages/Diretorias';
+import { VinculosAcademicos } from './pages/VinculosAcademicos'; // no topo
+import { EstruturaOrganizacional } from './pages/EstruturaOrganizacional'; // no topo
 
 const RotaPrivada = ({ children }: { children: JSX.Element }) => {
   return localStorage.getItem('token') ? children : <Navigate to="/login" />;
@@ -295,6 +297,8 @@ function App() {
         <Route path="/dashboard" element={<RotaPrivada><GestaoVoluntarios /></RotaPrivada>} />
         <Route path="/eventos" element={<RotaPrivada><Eventos /></RotaPrivada>} />
         <Route path="/diretorias" element={<RotaPrivada><Diretorias /></RotaPrivada>} />
+        <Route path="/vinculos" element={<RotaPrivada><VinculosAcademicos /></RotaPrivada>} />
+        <Route path="/organizacao" element={<RotaPrivada><EstruturaOrganizacional /></RotaPrivada>} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
