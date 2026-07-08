@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Calendar, DollarSign, Settings, LogOut, LayoutGrid } from 'lucide-react';
+import { Users, Calendar, DollarSign, Settings, LogOut, LayoutGrid, ShieldAlert } from 'lucide-react';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -35,6 +35,13 @@ export function MainLayout({ children, titulo }: MainLayoutProps) {
           >
             <Users size={18} className="text-[#0F81CA]" /> 
             <span>Voluntários</span>
+          </Link>
+          <Link 
+            to="/diretorias" 
+            className="flex items-center gap-3 text-gray-700 hover:bg-gray-100 px-3 py-2.5 rounded-sm font-medium transition-colors border-l-4 border-transparent hover:border-[#ED7630]"
+          >
+            <ShieldAlert size={18} className="text-[#ED7630]" /> 
+            <span>Diretorias</span>
           </Link>
           <Link 
             to="/eventos" 
