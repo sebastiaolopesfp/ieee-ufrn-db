@@ -8,6 +8,8 @@ import br.ufrn.ieee.database.academico.model.Instituicao;
 import br.ufrn.ieee.database.academico.repository.CursoRepository;
 import br.ufrn.ieee.database.academico.repository.InstituicaoRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +26,9 @@ public class InstituicaoService {
         this.cursoRepository = cursoRepository;
     }
 
-    public List<InstituicaoResponseDTO> listarTodos() {
-        return instituicaoRepository.findAll()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<InstituicaoResponseDTO> listarTodos(Pageable pageable) {
+        return instituicaoRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     public InstituicaoResponseDTO buscarPorId(Long id) {
@@ -96,13 +96,13 @@ public class InstituicaoService {
         List<CursoResponseDTO> cursosDto = instituicao.getCursos() == null
                 ? List.of()
                 : instituicao.getCursos().stream()
-                    .map(curso -> {
-                        CursoResponseDTO cursoDto = new CursoResponseDTO();
-                        cursoDto.setId(curso.getId());
-                        cursoDto.setNome(curso.getNome());
-                        return cursoDto;
-                    })
-                    .toList();
+                        .map(curso -> {
+                            CursoResponseDTO cursoDto = new CursoResponseDTO();
+                            cursoDto.setId(curso.getId());
+                            cursoDto.setNome(curso.getNome());
+                            return cursoDto;
+                        })
+                        .toList();
 
         dto.setCursos(cursosDto);
         return dto;

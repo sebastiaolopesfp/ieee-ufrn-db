@@ -3,12 +3,14 @@ package br.ufrn.ieee.database.gestao.controller;
 import br.ufrn.ieee.database.gestao.dto.RelatorioRequestDTO;
 import br.ufrn.ieee.database.gestao.dto.RelatorioResponseDTO;
 import br.ufrn.ieee.database.gestao.service.RelatorioService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/relatorios")
@@ -21,13 +23,14 @@ public class RelatorioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RelatorioResponseDTO>> listarTodos() {
-        return ResponseEntity.ok(relatorioService.listarTodos());
+    public ResponseEntity<Page<RelatorioResponseDTO>> listarTodos(
+            @PageableDefault(size = 20, sort = "dataGeracao") Pageable pageable) {
+        return ResponseEntity.ok(relatorioService.listarTodos(pageable));
     }
 
     @PreAuthorize("hasAnyRole('DIRETOR_RAMO', 'DIRETOR_CAPITULO')")
     @PostMapping
-    public ResponseEntity<RelatorioResponseDTO> criar(@RequestBody RelatorioRequestDTO dto) {
+    public ResponseEntity<RelatorioResponseDTO> criar(@Valid @RequestBody RelatorioRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(relatorioService.criar(dto));
     }
 }

@@ -38,7 +38,7 @@ public class SessaoController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
-    public ResponseEntity<SessaoResponseDTO> criar(@RequestBody SessaoRequestDTO dto) {
+    public ResponseEntity<SessaoResponseDTO> criar(@Valid @RequestBody SessaoRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(sessaoService.criar(dto));
     }
 

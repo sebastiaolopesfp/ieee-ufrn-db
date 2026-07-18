@@ -3,11 +3,14 @@ package br.ufrn.ieee.database.evento.controller;
 import br.ufrn.ieee.database.evento.dto.EventoRequestDTO;
 import br.ufrn.ieee.database.evento.dto.EventoResponseDTO;
 import br.ufrn.ieee.database.evento.service.EventoService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,8 +24,9 @@ public class EventoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventoResponseDTO>> listar() {
-        return ResponseEntity.ok(eventoService.listarTodos());
+    public ResponseEntity<Page<EventoResponseDTO>> listar(
+            @PageableDefault(size = 20, sort = "dataInicio") Pageable pageable) {
+        return ResponseEntity.ok(eventoService.listarTodos(pageable));
     }
 
     @GetMapping("/{id}")
@@ -32,7 +36,7 @@ public class EventoController {
 
     @PostMapping("/local")
     @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
-    public ResponseEntity<EventoResponseDTO> criarLocalmente(@RequestBody EventoRequestDTO dto) {
+    public ResponseEntity<EventoResponseDTO> criarLocalmente(@Valid @RequestBody EventoRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(eventoService.criarLocalmente(dto));
     }
 
@@ -46,6 +50,7 @@ public class EventoController {
 
     @PutMapping("/local/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
+    // Sem @Valid: atualização parcial (Service só seta campos != null).
     public ResponseEntity<EventoResponseDTO> atualizarLocalmente(
             @PathVariable Long id,
             @RequestBody EventoRequestDTO dto) {

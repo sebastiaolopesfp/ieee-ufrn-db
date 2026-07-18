@@ -5,8 +5,9 @@ import br.ufrn.ieee.database.gestao.dto.CargoResponseDTO;
 import br.ufrn.ieee.database.gestao.model.Cargo;
 import br.ufrn.ieee.database.gestao.repository.CargoRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class CargoService {
@@ -17,13 +18,13 @@ public class CargoService {
         this.cargoRepository = cargoRepository;
     }
 
-    public List<CargoResponseDTO> listarTodos() {
-        return cargoRepository.findAll().stream().map(this::toResponseDTO).toList();
+    public Page<CargoResponseDTO> listarTodos(Pageable pageable) {
+        return cargoRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     public CargoResponseDTO buscarPorId(Long id) {
         Cargo cargo = cargoRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Cargo não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cargo não encontrado."));
         return toResponseDTO(cargo);
     }
 
@@ -35,14 +36,15 @@ public class CargoService {
 
     public CargoResponseDTO atualizar(Long id, CargoRequestDTO dto) {
         Cargo cargo = cargoRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Cargo não encontrado."));
-        if (dto.getNome() != null) cargo.setNome(dto.getNome());
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cargo não encontrado."));
+        if (dto.getNome() != null)
+            cargo.setNome(dto.getNome());
         return toResponseDTO(cargoRepository.save(cargo));
     }
 
     public void deletar(Long id) {
         Cargo cargo = cargoRepository.findById(id)
-            .orElseThrow(() -> new EntidadeNaoEncontradaException("Cargo não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cargo não encontrado."));
         cargoRepository.delete(cargo);
     }
 

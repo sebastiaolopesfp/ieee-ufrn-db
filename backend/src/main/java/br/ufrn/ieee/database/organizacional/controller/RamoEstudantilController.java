@@ -3,12 +3,14 @@ package br.ufrn.ieee.database.organizacional.controller;
 import br.ufrn.ieee.database.organizacional.dto.RamoEstudantilRequestDTO;
 import br.ufrn.ieee.database.organizacional.dto.RamoEstudantilResponseDTO;
 import br.ufrn.ieee.database.organizacional.service.RamoEstudantilService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/ramos-estudantis")
@@ -21,8 +23,9 @@ public class RamoEstudantilController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RamoEstudantilResponseDTO>> listar() {
-        return ResponseEntity.ok(ramoService.listarTodos());
+    public ResponseEntity<Page<RamoEstudantilResponseDTO>> listar(
+            @PageableDefault(size = 20, sort = "unidadeCodigo") Pageable pageable) {
+        return ResponseEntity.ok(ramoService.listarTodos(pageable));
     }
 
     @GetMapping("/{id}")
@@ -32,12 +35,13 @@ public class RamoEstudantilController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<RamoEstudantilResponseDTO> criar(@RequestBody RamoEstudantilRequestDTO dto) {
+    public ResponseEntity<RamoEstudantilResponseDTO> criar(@Valid @RequestBody RamoEstudantilRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ramoService.criar(dto));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    // Sem @Valid: atualização parcial (Service só seta campos != null).
     public ResponseEntity<RamoEstudantilResponseDTO> atualizar(@PathVariable String id,
             @RequestBody RamoEstudantilRequestDTO dto) {
         return ResponseEntity.ok(ramoService.atualizar(id, dto));

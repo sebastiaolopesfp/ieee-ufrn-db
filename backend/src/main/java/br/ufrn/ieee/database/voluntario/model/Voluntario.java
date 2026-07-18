@@ -3,6 +3,7 @@ package br.ufrn.ieee.database.voluntario.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import br.ufrn.ieee.database.academico.model.Vinculo;
 
 @Data
-@EqualsAndHashCode(exclude = { "membro" })
 @Entity
 @Table(name = "voluntario")
 public class Voluntario {
@@ -44,10 +44,14 @@ public class Voluntario {
     @Column(name = "tipo_usuario", nullable = false, length = 30)
     private TipoUsuario tipoUsuario = TipoUsuario.VOLUNTARIO;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToOne(mappedBy = "voluntario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private Membro membro;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "voluntario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Vinculo> vinculos = new ArrayList<>();
 }

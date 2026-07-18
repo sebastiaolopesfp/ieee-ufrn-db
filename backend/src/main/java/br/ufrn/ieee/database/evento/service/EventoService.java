@@ -12,12 +12,13 @@ import br.ufrn.ieee.database.organizacional.repository.UnidadeOrganizacionalRepo
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
 import br.ufrn.ieee.database.shared.exception.RegraDeNegocioException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,8 +43,8 @@ public class EventoService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventoResponseDTO> listarTodos() {
-        return eventoRepository.findAll().stream().map(this::toResponseDTO).toList();
+    public Page<EventoResponseDTO> listarTodos(Pageable pageable) {
+        return eventoRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
@@ -139,7 +140,6 @@ public class EventoService {
                     "Eventos importados do vTools devem ser alterados na plataforma oficial.");
         }
 
-        // Atualiza os dados permitidos
         if (dto.getTitulo() != null)
             evento.setTitulo(dto.getTitulo());
         if (dto.getDescricao() != null)
@@ -156,14 +156,11 @@ public class EventoService {
             evento.setSubcategoria(dto.getSubcategoria());
         if (dto.getOrcamentoEstimado() != null)
             evento.setOrcamentoEstimado(dto.getOrcamentoEstimado());
-
-        // 👉 ADICIONE ESTAS DUAS LINHAS AQUI:
         if (dto.getQtdMembros() != null)
             evento.setQtdMembros(dto.getQtdMembros());
         if (dto.getQtdNaoMembros() != null)
             evento.setQtdNaoMembros(dto.getQtdNaoMembros());
 
-        // Atualiza os vínculos organizacionais se foram enviados
         if (dto.getUnidadesCodigos() != null) {
             evento.getUnidades().clear();
             vincularUnidades(evento, dto.getUnidadesCodigos());

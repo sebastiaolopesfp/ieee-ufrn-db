@@ -9,11 +9,12 @@ import br.ufrn.ieee.database.financeiro.model.ItemOrcamento;
 import br.ufrn.ieee.database.financeiro.repository.FornecedorRepository;
 import br.ufrn.ieee.database.financeiro.repository.ItemOrcamentoRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 public class ItemOrcamentoService {
@@ -31,8 +32,8 @@ public class ItemOrcamentoService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemOrcamentoResponseDTO> listarTodos() {
-        return itemRepository.findAll().stream().map(this::toResponseDTO).toList();
+    public Page<ItemOrcamentoResponseDTO> listarTodos(Pageable pageable) {
+        return itemRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
@@ -117,7 +118,6 @@ public class ItemOrcamentoService {
         dto.setQuantidade(item.getQuantidade());
         dto.setCustoUnitario(item.getCustoUnitario());
 
-        // Calcula o custo total e evita NullPointerException
         if (item.getQuantidade() != null && item.getCustoUnitario() != null) {
             dto.setCustoTotal(item.getCustoUnitario().multiply(new BigDecimal(item.getQuantidade())));
         }

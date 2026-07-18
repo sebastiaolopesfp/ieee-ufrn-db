@@ -8,10 +8,10 @@ import br.ufrn.ieee.database.organizacional.repository.RamoEstudantilRepository;
 import br.ufrn.ieee.database.organizacional.repository.UnidadeOrganizacionalRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
 import br.ufrn.ieee.database.shared.exception.RegraDeNegocioException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class RamoEstudantilService {
@@ -26,8 +26,8 @@ public class RamoEstudantilService {
     }
 
     @Transactional(readOnly = true)
-    public List<RamoEstudantilResponseDTO> listarTodos() {
-        return ramoRepository.findAll().stream().map(this::toResponseDTO).toList();
+    public Page<RamoEstudantilResponseDTO> listarTodos(Pageable pageable) {
+        return ramoRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)

@@ -3,12 +3,14 @@ package br.ufrn.ieee.database.financeiro.controller;
 import br.ufrn.ieee.database.financeiro.dto.FornecedorRequestDTO;
 import br.ufrn.ieee.database.financeiro.dto.FornecedorResponseDTO;
 import br.ufrn.ieee.database.financeiro.service.FornecedorService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/fornecedores")
@@ -22,8 +24,9 @@ public class FornecedorController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
-    public ResponseEntity<List<FornecedorResponseDTO>> listar() {
-        return ResponseEntity.ok(fornecedorService.listarTodos());
+    public ResponseEntity<Page<FornecedorResponseDTO>> listar(
+            @PageableDefault(size = 20, sort = "nome") Pageable pageable) {
+        return ResponseEntity.ok(fornecedorService.listarTodos(pageable));
     }
 
     @GetMapping("/{id}")
@@ -34,12 +37,14 @@ public class FornecedorController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
-    public ResponseEntity<FornecedorResponseDTO> criar(@RequestBody FornecedorRequestDTO dto) {
+    public ResponseEntity<FornecedorResponseDTO> criar(@Valid @RequestBody FornecedorRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(fornecedorService.criar(dto));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
+    // Sem @Valid: atualização parcial no Service (cada campo só é setado se !=
+    // null).
     public ResponseEntity<FornecedorResponseDTO> atualizar(@PathVariable Long id,
             @RequestBody FornecedorRequestDTO dto) {
         return ResponseEntity.ok(fornecedorService.atualizar(id, dto));

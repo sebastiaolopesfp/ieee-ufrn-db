@@ -3,12 +3,14 @@ package br.ufrn.ieee.database.academico.controller;
 import br.ufrn.ieee.database.academico.dto.CursoRequestDTO;
 import br.ufrn.ieee.database.academico.dto.CursoResponseDTO;
 import br.ufrn.ieee.database.academico.service.CursoService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/cursos")
@@ -21,8 +23,9 @@ public class CursoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CursoResponseDTO>> listar() {
-        return ResponseEntity.ok(cursoService.listarTodos());
+    public ResponseEntity<Page<CursoResponseDTO>> listar(
+            @PageableDefault(size = 20, sort = "nome") Pageable pageable) {
+        return ResponseEntity.ok(cursoService.listarTodos(pageable));
     }
 
     @GetMapping("/{id}")
@@ -32,14 +35,14 @@ public class CursoController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CursoResponseDTO> criar(@RequestBody CursoRequestDTO dto) {
+    public ResponseEntity<CursoResponseDTO> criar(@Valid @RequestBody CursoRequestDTO dto) {
         CursoResponseDTO cursoCriado = cursoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(cursoCriado);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CursoResponseDTO> atualizar(@PathVariable Long id, @RequestBody CursoRequestDTO dto) {
+    public ResponseEntity<CursoResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody CursoRequestDTO dto) {
         return ResponseEntity.ok(cursoService.atualizar(id, dto));
     }
 

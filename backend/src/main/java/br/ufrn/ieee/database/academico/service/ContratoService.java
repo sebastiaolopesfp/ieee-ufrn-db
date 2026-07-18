@@ -10,10 +10,10 @@ import br.ufrn.ieee.database.organizacional.model.UnidadeOrganizacional;
 import br.ufrn.ieee.database.organizacional.repository.UnidadeOrganizacionalRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
 import br.ufrn.ieee.database.shared.exception.RegraDeNegocioException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class ContratoService {
@@ -23,18 +23,16 @@ public class ContratoService {
     private final UnidadeOrganizacionalRepository unidadeRepository;
 
     public ContratoService(ContratoRepository contratoRepository,
-                            VinculoRepository vinculoRepository,
-                            UnidadeOrganizacionalRepository unidadeRepository) {
+            VinculoRepository vinculoRepository,
+            UnidadeOrganizacionalRepository unidadeRepository) {
         this.contratoRepository = contratoRepository;
         this.vinculoRepository = vinculoRepository;
         this.unidadeRepository = unidadeRepository;
     }
 
-    public List<ContratoResponseDTO> listarTodos() {
-        return contratoRepository.findAll()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<ContratoResponseDTO> listarTodos(Pageable pageable) {
+        return contratoRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     public ContratoResponseDTO buscarPorId(Long id) {
@@ -101,7 +99,8 @@ public class ContratoService {
 
     private UnidadeOrganizacional buscarUnidadeOuFalhar(String codigo) {
         return unidadeRepository.findById(codigo)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Unidade Organizacional não encontrada com código: " + codigo));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException(
+                        "Unidade Organizacional não encontrada com código: " + codigo));
     }
 
     private ContratoResponseDTO toResponseDTO(Contrato contrato) {

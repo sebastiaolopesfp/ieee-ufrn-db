@@ -3,12 +3,14 @@ package br.ufrn.ieee.database.academico.controller;
 import br.ufrn.ieee.database.academico.dto.ContratoRequestDTO;
 import br.ufrn.ieee.database.academico.dto.ContratoResponseDTO;
 import br.ufrn.ieee.database.academico.service.ContratoService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/contratos")
@@ -21,8 +23,9 @@ public class ContratoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ContratoResponseDTO>> listar() {
-        return ResponseEntity.ok(contratoService.listarTodos());
+    public ResponseEntity<Page<ContratoResponseDTO>> listar(
+            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return ResponseEntity.ok(contratoService.listarTodos(pageable));
     }
 
     @GetMapping("/{id}")
@@ -32,14 +35,15 @@ public class ContratoController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
-    public ResponseEntity<ContratoResponseDTO> criar(@RequestBody ContratoRequestDTO dto) {
+    public ResponseEntity<ContratoResponseDTO> criar(@Valid @RequestBody ContratoRequestDTO dto) {
         ContratoResponseDTO contratoCriado = contratoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(contratoCriado);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
-    public ResponseEntity<ContratoResponseDTO> atualizar(@PathVariable Long id, @RequestBody ContratoRequestDTO dto) {
+    public ResponseEntity<ContratoResponseDTO> atualizar(@PathVariable Long id,
+            @Valid @RequestBody ContratoRequestDTO dto) {
         return ResponseEntity.ok(contratoService.atualizar(id, dto));
     }
 

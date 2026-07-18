@@ -1,13 +1,11 @@
 package br.ufrn.ieee.database.voluntario.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.hibernate.validator.constraints.br.CPF;
 
 @Data
-public class VoluntarioRequestDTO {
+public class VoluntarioAtualizacaoRequestDTO {
 
     @NotBlank(message = "O primeiro nome é obrigatório")
     @Size(max = 50, message = "O primeiro nome deve ter no máximo 50 caracteres")
@@ -20,19 +18,7 @@ public class VoluntarioRequestDTO {
     @Size(max = 50, message = "O último nome deve ter no máximo 50 caracteres")
     private String ultimoNome;
 
-    @NotBlank(message = "A senha é obrigatória")
-    @Size(min = 8, max = 100, message = "A senha deve ter entre 8 e 100 caracteres")
-    private String senha;
-
-    @NotBlank(message = "O e-mail pessoal é obrigatório")
-    @Email(message = "O e-mail pessoal informado não é válido")
-    private String emailPessoal;
-
     @NotBlank(message = "O telefone é obrigatório")
     @Size(max = 20, message = "O telefone deve ter no máximo 20 caracteres")
     private String telefone;
-
-    @NotBlank(message = "O CPF é obrigatório")
-    @CPF(message = "O CPF informado não é válido")
-    private String cpf;
 }

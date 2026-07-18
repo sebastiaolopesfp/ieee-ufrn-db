@@ -11,10 +11,10 @@ import br.ufrn.ieee.database.academico.repository.VinculoRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
 import br.ufrn.ieee.database.voluntario.model.Voluntario;
 import br.ufrn.ieee.database.voluntario.repository.VoluntarioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class VinculoService {
@@ -25,20 +25,18 @@ public class VinculoService {
     private final CursoRepository cursoRepository;
 
     public VinculoService(VinculoRepository vinculoRepository,
-                           VoluntarioRepository voluntarioRepository,
-                           InstituicaoRepository instituicaoRepository,
-                           CursoRepository cursoRepository) {
+            VoluntarioRepository voluntarioRepository,
+            InstituicaoRepository instituicaoRepository,
+            CursoRepository cursoRepository) {
         this.vinculoRepository = vinculoRepository;
         this.voluntarioRepository = voluntarioRepository;
         this.instituicaoRepository = instituicaoRepository;
         this.cursoRepository = cursoRepository;
     }
 
-    public List<VinculoResponseDTO> listarTodos() {
-        return vinculoRepository.findAll()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<VinculoResponseDTO> listarTodos(Pageable pageable) {
+        return vinculoRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     public VinculoResponseDTO buscarPorId(Long id) {
@@ -69,8 +67,6 @@ public class VinculoService {
     public VinculoResponseDTO atualizar(Long id, VinculoRequestDTO dto) {
         Vinculo vinculo = buscarEntidadeOuFalhar(id);
 
-        // Revalida as FKs mesmo em atualização — o cliente pode estar tentando
-        // trocar o vínculo para outra Instituição/Curso, por exemplo.
         Instituicao instituicao = buscarInstituicaoOuFalhar(dto.getInstituicaoId());
         Curso curso = buscarCursoOuFalhar(dto.getCursoId());
 

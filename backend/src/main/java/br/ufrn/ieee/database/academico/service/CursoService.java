@@ -5,9 +5,9 @@ import br.ufrn.ieee.database.academico.dto.CursoResponseDTO;
 import br.ufrn.ieee.database.academico.model.Curso;
 import br.ufrn.ieee.database.academico.repository.CursoRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class CursoService {
@@ -18,11 +18,8 @@ public class CursoService {
         this.cursoRepository = cursoRepository;
     }
 
-    public List<CursoResponseDTO> listarTodos() {
-        return cursoRepository.findAll()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
+    public Page<CursoResponseDTO> listarTodos(Pageable pageable) {
+        return cursoRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     public CursoResponseDTO buscarPorId(Long id) {

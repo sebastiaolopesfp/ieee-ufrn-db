@@ -5,10 +5,10 @@ import br.ufrn.ieee.database.financeiro.dto.FornecedorResponseDTO;
 import br.ufrn.ieee.database.financeiro.model.Fornecedor;
 import br.ufrn.ieee.database.financeiro.repository.FornecedorRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class FornecedorService {
@@ -20,8 +20,8 @@ public class FornecedorService {
     }
 
     @Transactional(readOnly = true)
-    public List<FornecedorResponseDTO> listarTodos() {
-        return fornecedorRepository.findAll().stream().map(this::toResponseDTO).toList();
+    public Page<FornecedorResponseDTO> listarTodos(Pageable pageable) {
+        return fornecedorRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)

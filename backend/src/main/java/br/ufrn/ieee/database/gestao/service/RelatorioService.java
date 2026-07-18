@@ -9,9 +9,11 @@ import br.ufrn.ieee.database.organizacional.repository.UnidadeOrganizacionalRepo
 import br.ufrn.ieee.database.voluntario.model.Diretor;
 import br.ufrn.ieee.database.voluntario.repository.DiretorRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class RelatorioService {
@@ -27,6 +29,7 @@ public class RelatorioService {
         this.unidadeRepository = unidadeRepository;
     }
 
+    @Transactional
     public RelatorioResponseDTO criar(RelatorioRequestDTO dto) {
         Diretor diretor = diretorRepository.findById(dto.getDiretorId())
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Diretor não encontrado."));
@@ -46,8 +49,9 @@ public class RelatorioService {
         return toResponseDTO(relatorioRepository.save(relatorio));
     }
 
-    public List<RelatorioResponseDTO> listarTodos() {
-        return relatorioRepository.findAll().stream().map(this::toResponseDTO).toList();
+    @Transactional(readOnly = true)
+    public Page<RelatorioResponseDTO> listarTodos(Pageable pageable) {
+        return relatorioRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     private RelatorioResponseDTO toResponseDTO(Relatorio relatorio) {

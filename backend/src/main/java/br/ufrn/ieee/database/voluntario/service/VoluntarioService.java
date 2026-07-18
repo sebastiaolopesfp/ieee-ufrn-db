@@ -1,9 +1,10 @@
 package br.ufrn.ieee.database.voluntario.service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,33 +39,15 @@ public class VoluntarioService {
     }
 
     @Transactional(readOnly = true)
-    public List<VoluntarioResponseDTO> listarTodos() {
-        List<Voluntario> voluntarios = voluntarioRepository.findAll();
-        List<VoluntarioResponseDTO> dtos = new ArrayList<>();
-        for (Voluntario v : voluntarios) {
-            VoluntarioResponseDTO dto = new VoluntarioResponseDTO();
-            dto.setId(v.getId());
-            dto.setPrimeiroNome(v.getPrimeiroNome());
-            dto.setUltimoNome(v.getUltimoNome());
-            dto.setEmailPessoal(v.getEmailPessoal());
-            dto.setTipoUsuario(v.getTipoUsuario().name());
-            dtos.add(dto);
-        }
-        return dtos;
+    public Page<VoluntarioResponseDTO> listarTodos(Pageable pageable) {
+        return voluntarioRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
     public VoluntarioResponseDTO buscarPorId(Long id) {
         Voluntario voluntario = voluntarioRepository.findById(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
-
-        VoluntarioResponseDTO dto = new VoluntarioResponseDTO();
-        dto.setId(voluntario.getId());
-        dto.setPrimeiroNome(voluntario.getPrimeiroNome());
-        dto.setUltimoNome(voluntario.getUltimoNome());
-        dto.setEmailPessoal(voluntario.getEmailPessoal());
-        dto.setTipoUsuario(voluntario.getTipoUsuario().name());
-        return dto;
+        return toResponseDTO(voluntario);
     }
 
     @Transactional
@@ -87,19 +70,11 @@ public class VoluntarioService {
         voluntario.setTipoUsuario(TipoUsuario.VOLUNTARIO);
 
         Voluntario voluntarioSalvo = voluntarioRepository.save(voluntario);
-
-        VoluntarioResponseDTO resposta = new VoluntarioResponseDTO();
-        resposta.setId(voluntarioSalvo.getId());
-        resposta.setPrimeiroNome(voluntarioSalvo.getPrimeiroNome());
-        resposta.setUltimoNome(voluntarioSalvo.getUltimoNome());
-        resposta.setEmailPessoal(voluntarioSalvo.getEmailPessoal());
-        resposta.setTipoUsuario(voluntarioSalvo.getTipoUsuario().name());
-
-        return resposta;
+        return toResponseDTO(voluntarioSalvo);
     }
 
     @Transactional
-    public VoluntarioResponseDTO atualizar(Long id, VoluntarioRequestDTO dto) {
+    public VoluntarioResponseDTO atualizar(Long id, VoluntarioAtualizacaoRequestDTO dto) {
         Voluntario voluntario = voluntarioRepository.findById(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
 
@@ -109,14 +84,7 @@ public class VoluntarioService {
         voluntario.setTelefone(dto.getTelefone());
 
         Voluntario voluntarioSalvo = voluntarioRepository.save(voluntario);
-
-        VoluntarioResponseDTO resposta = new VoluntarioResponseDTO();
-        resposta.setId(voluntarioSalvo.getId());
-        resposta.setPrimeiroNome(voluntarioSalvo.getPrimeiroNome());
-        resposta.setUltimoNome(voluntarioSalvo.getUltimoNome());
-        resposta.setEmailPessoal(voluntarioSalvo.getEmailPessoal());
-        resposta.setTipoUsuario(voluntarioSalvo.getTipoUsuario().name());
-        return resposta;
+        return toResponseDTO(voluntarioSalvo);
     }
 
     @Transactional
@@ -221,7 +189,7 @@ public class VoluntarioService {
         if (!diretorRepository.existsById(id)) {
             diretor = new Diretor();
             diretor.setMembro(membro);
-            diretor = diretorRepository.saveAndFlush(diretor); 
+            diretor = diretorRepository.saveAndFlush(diretor);
         } else {
             diretor = diretorRepository.findById(id).get();
         }
@@ -323,5 +291,15 @@ public class VoluntarioService {
         }
 
         voluntarioRepository.save(voluntario);
+    }
+
+    private VoluntarioResponseDTO toResponseDTO(Voluntario voluntario) {
+        VoluntarioResponseDTO dto = new VoluntarioResponseDTO();
+        dto.setId(voluntario.getId());
+        dto.setPrimeiroNome(voluntario.getPrimeiroNome());
+        dto.setUltimoNome(voluntario.getUltimoNome());
+        dto.setEmailPessoal(voluntario.getEmailPessoal());
+        dto.setTipoUsuario(voluntario.getTipoUsuario().name());
+        return dto;
     }
 }

@@ -2,6 +2,8 @@ package br.ufrn.ieee.database.academico.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import java.time.LocalDate;
 
 import br.ufrn.ieee.database.organizacional.model.UnidadeOrganizacional;
@@ -14,10 +16,14 @@ public class Contrato {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vinculo_id", nullable = false)
     private Vinculo vinculo;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unidade_codigo", referencedColumnName = "unidade_codigo", nullable = false)
     private UnidadeOrganizacional unidade;

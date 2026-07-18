@@ -3,10 +3,10 @@ package br.ufrn.ieee.database.voluntario.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import java.time.LocalDate;
 
 @Data
-@EqualsAndHashCode(exclude = { "voluntario", "diretor" })
 @Entity
 @Table(name = "membro")
 public class Membro {
@@ -14,6 +14,8 @@ public class Membro {
     @Column(name = "voluntario_id")
     private Long voluntarioId;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "voluntario_id", nullable = false)
@@ -35,6 +37,8 @@ public class Membro {
     @Column(name = "e_mail_ieee", nullable = false, unique = true, length = 255)
     private String emailIeee;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToOne(mappedBy = "membro", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Diretor diretor;
 }

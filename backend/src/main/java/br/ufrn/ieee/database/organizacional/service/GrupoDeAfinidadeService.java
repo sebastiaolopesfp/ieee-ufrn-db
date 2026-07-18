@@ -10,10 +10,10 @@ import br.ufrn.ieee.database.organizacional.repository.RamoEstudantilRepository;
 import br.ufrn.ieee.database.organizacional.repository.UnidadeOrganizacionalRepository;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
 import br.ufrn.ieee.database.shared.exception.RegraDeNegocioException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class GrupoDeAfinidadeService {
@@ -31,8 +31,8 @@ public class GrupoDeAfinidadeService {
     }
 
     @Transactional(readOnly = true)
-    public List<GrupoDeAfinidadeResponseDTO> listarTodos() {
-        return grupoRepository.findAll().stream().map(this::toResponseDTO).toList();
+    public Page<GrupoDeAfinidadeResponseDTO> listarTodos(Pageable pageable) {
+        return grupoRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)

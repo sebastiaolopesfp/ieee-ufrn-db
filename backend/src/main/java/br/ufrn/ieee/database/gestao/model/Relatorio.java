@@ -2,6 +2,8 @@ package br.ufrn.ieee.database.gestao.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -16,10 +18,14 @@ public class Relatorio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diretor_id", referencedColumnName = "voluntario_id", nullable = false)
     private Diretor diretor;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unidade_codigo", referencedColumnName = "unidade_codigo", nullable = false)
     private UnidadeOrganizacional unidade;
