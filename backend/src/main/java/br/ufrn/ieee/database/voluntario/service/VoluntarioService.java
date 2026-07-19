@@ -39,8 +39,11 @@ public class VoluntarioService {
     }
 
     @Transactional(readOnly = true)
-    public Page<VoluntarioResponseDTO> listarTodos(Pageable pageable) {
-        return voluntarioRepository.findAll(pageable).map(this::toResponseDTO);
+    public Page<VoluntarioResponseDTO> listarTodos(Pageable pageable, boolean incluirInativos) {
+        Page<Voluntario> pagina = incluirInativos
+                ? voluntarioRepository.findAll(pageable)
+                : voluntarioRepository.findByAtivoTrue(pageable);
+        return pagina.map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
@@ -91,7 +94,41 @@ public class VoluntarioService {
     public void deletar(Long id) {
         Voluntario voluntario = voluntarioRepository.findById(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+
+        // Garante a integridade referencial: históricos de membresia são preservados e
+        // não podem ser apagados
+        if (membroRepository.existsById(id)) {
+            throw new RegraDeNegocioException(
+                    "Não é possível excluir um voluntário com histórico de membresia ativo ou encerrado.");
+        }
+
         voluntarioRepository.delete(voluntario);
+    }
+
+    @Transactional
+    public void desativar(Long id) {
+        Voluntario voluntario = voluntarioRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+
+        if (!voluntario.getAtivo()) {
+            throw new RegraDeNegocioException("Este voluntário já está inativo.");
+        }
+
+        voluntario.setAtivo(false);
+        voluntarioRepository.save(voluntario);
+    }
+
+    @Transactional
+    public void reativar(Long id) {
+        Voluntario voluntario = voluntarioRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+
+        if (voluntario.getAtivo()) {
+            throw new RegraDeNegocioException("Este voluntário já está ativo.");
+        }
+
+        voluntario.setAtivo(true);
+        voluntarioRepository.save(voluntario);
     }
 
     @Transactional(readOnly = true)
@@ -128,6 +165,11 @@ public class VoluntarioService {
     public void promoverAMembro(Long id, PromoverMembroRequestDTO dto) {
         Voluntario voluntario = voluntarioRepository.findById(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+
+        if (!voluntario.getAtivo()) {
+            throw new RegraDeNegocioException(
+                    "Não é possível promover um voluntário inativo. Reative a conta primeiro.");
+        }
 
         Optional<Membro> membroExistente = membroRepository.findById(id);
 
@@ -169,6 +211,11 @@ public class VoluntarioService {
     public void promoverADiretor(Long id, PromoverDiretorRequestDTO dto) {
         Voluntario voluntario = voluntarioRepository.findById(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+
+        if (!voluntario.getAtivo()) {
+            throw new RegraDeNegocioException(
+                    "Não é possível promover um voluntário inativo. Reative a conta primeiro.");
+        }
 
         Membro membro = membroRepository.findById(id)
                 .orElseThrow(() -> new RegraDeNegocioException(
@@ -300,6 +347,7 @@ public class VoluntarioService {
         dto.setUltimoNome(voluntario.getUltimoNome());
         dto.setEmailPessoal(voluntario.getEmailPessoal());
         dto.setTipoUsuario(voluntario.getTipoUsuario().name());
+        dto.setAtivo(voluntario.getAtivo());
         return dto;
     }
 }

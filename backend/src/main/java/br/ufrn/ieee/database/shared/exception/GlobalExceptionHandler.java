@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import br.ufrn.ieee.database.shared.dto.ErroResponseDTO;
@@ -45,6 +46,17 @@ public class GlobalExceptionHandler {
         log.warn("Tentativa de login com credenciais inválidas.");
         ErroResponseDTO erro = new ErroResponseDTO("E-mail ou senha inválidos.", HttpStatus.UNAUTHORIZED.value());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erro);
+    }
+
+    // Disparada automaticamente pelo Spring Security quando a conta está
+    // com ativo = false (ver AutenticacaoService)
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ErroResponseDTO> handleDisabled(DisabledException ex) {
+        log.warn("Tentativa de login em conta desativada.");
+        ErroResponseDTO erro = new ErroResponseDTO(
+                "Esta conta foi desativada. Entre em contato com um administrador.",
+                HttpStatus.FORBIDDEN.value());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(erro);
     }
 
     // Trata bloqueios de conta gerados por mecanismos preventivos de segurança

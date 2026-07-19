@@ -39,6 +39,6 @@ public class Membro {
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @OneToOne(mappedBy = "membro", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "membro", fetch = FetchType.LAZY)
     private Diretor diretor;
 }

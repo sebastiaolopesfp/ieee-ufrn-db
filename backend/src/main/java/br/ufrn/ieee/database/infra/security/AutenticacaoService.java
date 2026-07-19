@@ -30,6 +30,10 @@ public class AutenticacaoService implements UserDetailsService {
         return new User(
                 voluntario.getEmailPessoal(),
                 voluntario.getSenha(),
+                voluntario.getAtivo(),
+                true,
+                true,
+                true,
                 Collections.singletonList(authority));
     }
 }

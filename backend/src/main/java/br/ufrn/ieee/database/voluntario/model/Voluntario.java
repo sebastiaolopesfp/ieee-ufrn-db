@@ -44,9 +44,12 @@ public class Voluntario {
     @Column(name = "tipo_usuario", nullable = false, length = 30)
     private TipoUsuario tipoUsuario = TipoUsuario.VOLUNTARIO;
 
+    @Column(nullable = false)
+    private Boolean ativo = true;
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @OneToOne(mappedBy = "voluntario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "voluntario", fetch = FetchType.LAZY)
     @JsonIgnore
     private Membro membro;
 

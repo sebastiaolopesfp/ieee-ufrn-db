@@ -32,8 +32,9 @@ public class VoluntarioController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','DIRETOR_RAMO','DIRETOR_CAPITULO')")
     public ResponseEntity<Page<VoluntarioResponseDTO>> listar(
-            @PageableDefault(size = 20, sort = "primeiroNome") Pageable pageable) {
-        return ResponseEntity.ok(voluntarioService.listarTodos(pageable));
+            @PageableDefault(size = 20, sort = "primeiroNome") Pageable pageable,
+            @RequestParam(name = "incluirInativos", defaultValue = "false") boolean incluirInativos) {
+        return ResponseEntity.ok(voluntarioService.listarTodos(pageable, incluirInativos));
     }
 
     @GetMapping("/{id}")
@@ -60,6 +61,20 @@ public class VoluntarioController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         voluntarioService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/desativar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> desativar(@PathVariable Long id) {
+        voluntarioService.desativar(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/reativar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> reativar(@PathVariable Long id) {
+        voluntarioService.reativar(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/perfil")

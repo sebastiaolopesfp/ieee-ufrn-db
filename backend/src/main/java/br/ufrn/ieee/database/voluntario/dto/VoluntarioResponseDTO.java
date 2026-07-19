@@ -9,4 +9,5 @@ public class VoluntarioResponseDTO {
     private String ultimoNome;
     private String emailPessoal;
     private String tipoUsuario;
+    private Boolean ativo;
 }
