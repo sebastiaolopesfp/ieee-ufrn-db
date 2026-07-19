@@ -42,13 +42,11 @@ public class MandatoService {
         List<Mandato> mandatos = mandatoRepository.findByDiretorVoluntarioId(diretorId);
         LocalDate hoje = LocalDate.now();
 
-        for (Mandato m : mandatos) {
-            if (m.getDiretor().getVoluntarioId().equals(diretorId)) {
-                boolean estariaAtivoOuFuturo = !hoje.isAfter(m.getDataFim());
-                if (estariaAtivoOuFuturo) {
-                    m.setDataFim(hoje);
-                    mandatoRepository.save(m);
-                }
+        for (Mandato mandato : mandatos) {
+            boolean estariaAtivoOuFuturo = !hoje.isAfter(mandato.getDataFim());
+            if (estariaAtivoOuFuturo) {
+                mandato.setDataFim(hoje);
+                mandatoRepository.save(mandato);
             }
         }
     }
@@ -59,16 +57,15 @@ public class MandatoService {
         LocalDate hoje = LocalDate.now();
 
         return mandatos.stream()
-                .filter(m -> m.getDiretor().getVoluntarioId().equals(diretorId))
-                .map(m -> {
-                    boolean ativo = isDiretorAtivo && !hoje.isBefore(m.getDataInicio())
-                            && !hoje.isAfter(m.getDataFim());
+                .map(mandato -> {
+                    boolean ativo = isDiretorAtivo && !hoje.isBefore(mandato.getDataInicio())
+                            && !hoje.isAfter(mandato.getDataFim());
                     return new MandatoResponseDTO(
-                            m.getId(),
-                            m.getCargo().getId(),
-                            m.getCargo().getNome(),
-                            m.getDataInicio(),
-                            m.getDataFim(),
+                            mandato.getId(),
+                            mandato.getCargo().getId(),
+                            mandato.getCargo().getNome(),
+                            mandato.getDataInicio(),
+                            mandato.getDataFim(),
                             ativo);
                 }).toList();
     }

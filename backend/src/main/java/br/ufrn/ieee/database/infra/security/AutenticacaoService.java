@@ -2,14 +2,12 @@ package br.ufrn.ieee.database.infra.security;
 
 import br.ufrn.ieee.database.voluntario.model.Voluntario;
 import br.ufrn.ieee.database.voluntario.repository.VoluntarioRepository;
-
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 
 @Service
@@ -24,14 +22,14 @@ public class AutenticacaoService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String emailPessoal) throws UsernameNotFoundException {
         Voluntario voluntario = voluntarioRepository.findByEmailPessoal(emailPessoal)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o e-mail: " + emailPessoal));
+                .orElseThrow(
+                        () -> new UsernameNotFoundException("Usuário não encontrado com o e-mail: " + emailPessoal));
 
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + voluntario.getTipoUsuario().name());
 
         return new User(
                 voluntario.getEmailPessoal(),
                 voluntario.getSenha(),
-                Collections.singletonList(authority)
-        );
+                Collections.singletonList(authority));
     }
 }

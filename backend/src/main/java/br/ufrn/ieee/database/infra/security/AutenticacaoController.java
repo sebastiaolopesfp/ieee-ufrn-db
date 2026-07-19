@@ -4,10 +4,10 @@ import br.ufrn.ieee.database.shared.dto.LoginRequestDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,28 +17,39 @@ public class AutenticacaoController {
 
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final LoginAttemptService loginAttemptService;
 
-    public AutenticacaoController(AuthenticationManager authenticationManager, TokenService tokenService) {
+    public AutenticacaoController(AuthenticationManager authenticationManager, TokenService tokenService,
+            LoginAttemptService loginAttemptService) {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO dto) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(dto.getEmailPessoal(), dto.getSenha());
+        loginAttemptService.validarNaoBloqueado(dto.getEmailPessoal());
 
-        Authentication auth = this.authenticationManager.authenticate(usernamePassword);
+        try {
+            var usernamePassword = new UsernamePasswordAuthenticationToken(dto.getEmailPessoal(), dto.getSenha());
+            Authentication auth = this.authenticationManager.authenticate(usernamePassword);
 
-        var principal = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
-        String role = principal.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
+            loginAttemptService.registrarLoginComSucesso(dto.getEmailPessoal());
 
-        // Gera o Token JWT contendo o e-mail e a Role
-        String token = tokenService.gerarToken(dto.getEmailPessoal(), role);
+            var principal = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
+            String role = principal.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
 
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
-        response.put("tipo", "Bearer");
+            String token = tokenService.gerarToken(dto.getEmailPessoal(), role);
 
-        return ResponseEntity.ok(response);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("tipo", "Bearer");
+
+            return ResponseEntity.ok(response);
+        } catch (BadCredentialsException ex) {
+            // Registra a falha e repassa o erro adiante sem alterar a resposta original.
+            loginAttemptService.registrarTentativaFalha(dto.getEmailPessoal());
+            throw ex;
+        }
     }
 }

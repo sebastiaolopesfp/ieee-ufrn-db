@@ -1,4 +1,3 @@
-// infra/security/VoluntarioSecurity.java (novo)
 package br.ufrn.ieee.database.infra.security;
 
 import br.ufrn.ieee.database.voluntario.repository.VoluntarioRepository;
