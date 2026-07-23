@@ -1,4 +1,4 @@
-package br.ufrn.ieee.database.infra.security;
+package br.ufrn.ieee.database.infra.security.authorization;
 
 import br.ufrn.ieee.database.voluntario.repository.VoluntarioRepository;
 import org.springframework.security.core.Authentication;

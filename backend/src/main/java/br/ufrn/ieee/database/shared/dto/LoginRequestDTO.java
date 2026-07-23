@@ -13,4 +13,6 @@ public class LoginRequestDTO {
 
     @NotBlank(message = "A senha é obrigatória")
     private String senha;
+
+    private Boolean manterConectado;
 }

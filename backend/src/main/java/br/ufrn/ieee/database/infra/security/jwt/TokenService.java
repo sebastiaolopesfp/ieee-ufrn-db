@@ -1,4 +1,4 @@
-package br.ufrn.ieee.database.infra.security;
+package br.ufrn.ieee.database.infra.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -57,6 +57,6 @@ public class TokenService {
     }
 
     private Instant gerarDataExpiracao() {
-        return Instant.now().plus(2, ChronoUnit.HOURS);
+        return Instant.now().plus(1, ChronoUnit.HOURS);
     }
 }

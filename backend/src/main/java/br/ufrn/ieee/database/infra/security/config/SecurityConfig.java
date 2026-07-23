@@ -1,4 +1,4 @@
-package br.ufrn.ieee.database.infra.security;
+package br.ufrn.ieee.database.infra.security.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +16,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import br.ufrn.ieee.database.infra.security.jwt.SecurityFilter;
+import br.ufrn.ieee.database.infra.security.login.LoginRateLimitFilter;
 
 import java.util.List;
 
@@ -35,9 +38,6 @@ public class SecurityConfig {
         this.loginRateLimitFilter = loginRateLimitFilter;
     }
 
-    // Configuração central de segurança da aplicação
-    // Estabelece políticas de CORS, CSRF, sessão stateless e a cadeia de filtros
-    // interceptores
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -46,16 +46,16 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/voluntarios/cadastro").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
+                .addFilterBefore(loginRateLimitFilter, SecurityFilter.class)
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    // Define a política de compartilhamento de recursos (CORS) para consumo seguro
-    // da API pelo frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

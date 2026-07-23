@@ -1,4 +1,4 @@
-package br.ufrn.ieee.database.infra.security;
+package br.ufrn.ieee.database.infra.security.login;
 
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;

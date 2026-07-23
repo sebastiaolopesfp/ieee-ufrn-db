@@ -67,6 +67,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(erro);
     }
 
+    // Disparada pelo RefreshTokenService quando o cookie está ausente,
+    // expirado, ou foi reutilizado após já ter sido rotacionado.
+    @ExceptionHandler(RefreshTokenInvalidoException.class)
+    public ResponseEntity<ErroResponseDTO> handleRefreshTokenInvalido(RefreshTokenInvalidoException ex) {
+        log.warn("Tentativa de refresh com token inválido: {}", ex.getMessage());
+        ErroResponseDTO erro = new ErroResponseDTO(ex.getMessage(), HttpStatus.UNAUTHORIZED.value());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erro);
+    }
+
     // Captura violações de chaves e restrições relacionais mapeadas no banco de
     // dados
     @ExceptionHandler(DataIntegrityViolationException.class)

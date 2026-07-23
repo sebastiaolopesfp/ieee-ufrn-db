@@ -1,4 +1,4 @@
-package br.ufrn.ieee.database.infra.security;
+package br.ufrn.ieee.database.infra.security.login;
 
 import br.ufrn.ieee.database.voluntario.model.Voluntario;
 import br.ufrn.ieee.database.voluntario.repository.VoluntarioRepository;
