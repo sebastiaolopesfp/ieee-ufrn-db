@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Network, Trash2, Briefcase } from 'lucide-react';
 import { MainLayout } from '../layouts/MainLayout';
-import { capituloService, ramoEstudantilService, cargoService } from '../services/api';
+import { capituloService, ramoEstudantilService } from '@/api/organizacional.api';
+import { cargoService } from '@/api/gestao.api';
 
 export function EstruturaOrganizacional() {
   const [capitulos, setCapitulos] = useState<any[]>([]);

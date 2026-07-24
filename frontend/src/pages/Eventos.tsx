@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Calendar, MapPin, Activity, Plus } from 'lucide-react';
 import { MainLayout } from '../layouts/MainLayout';
-import { eventoService, type Evento } from '../services/api';
+import { eventoService } from '@/api/eventos.api';
+import type { Evento } from '@/types/evento.types';
 import { Button } from '@/components/ui/button';
 
 import { EventoFormModal } from '../components/EventoFormModal';

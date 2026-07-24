@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Building2, BookOpen } from 'lucide-react';
 import { MainLayout } from '../layouts/MainLayout';
-import { instituicaoService, cursoService } from '../services/api';
+import { instituicaoService, cursoService } from '@/api/academico.api';
 
 export function VinculosAcademicos() {
   const [instituicoes, setInstituicoes] = useState<any[]>([]);

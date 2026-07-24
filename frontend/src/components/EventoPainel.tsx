@@ -2,7 +2,7 @@ import { Users, DollarSign, Trash2, Edit } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { type Evento } from '@/services/api';
+import type { Evento } from '@/types/evento.types';
 
 interface EventoPainelProps {
   evento: Evento | null;

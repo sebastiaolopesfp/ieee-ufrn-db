@@ -5,7 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Button } from './ui/button';
-import { type Evento, eventoService, unidadeService } from './../services/api';
+import { eventoService } from '@/api/eventos.api';
+import { unidadeService } from '@/api/organizacional.api';
+import type { Evento } from '@/types/evento.types';
 
 interface EventoFormModalProps {
   isOpen: boolean;

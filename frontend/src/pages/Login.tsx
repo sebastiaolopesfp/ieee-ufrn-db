@@ -1,6 +1,6 @@
 // src/pages/Login.tsx
 import { useState } from 'react';
-import { authService } from '../services/api'; 
+import { authService } from '@/api/auth.api';
 
 export function Login() {
   const [email, setEmail] = useState('');

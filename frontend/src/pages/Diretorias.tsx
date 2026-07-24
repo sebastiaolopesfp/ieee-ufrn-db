@@ -2,7 +2,9 @@
 import { useEffect, useState } from 'react';
 import { ShieldAlert, Trash2, Award, Users } from 'lucide-react';
 import { MainLayout } from '../layouts/MainLayout';
-import { voluntarioService, cargoService, unidadeService } from '../services/api';
+import { voluntarioService } from '@/api/voluntarios.api';
+import { cargoService } from '@/api/gestao.api';
+import { unidadeService } from '@/api/organizacional.api';
 
 export function Diretorias() {
   const [voluntarios, setVoluntarios] = useState<any[]>([]);

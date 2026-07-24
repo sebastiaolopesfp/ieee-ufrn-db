@@ -1,14 +1,14 @@
-// src/App.tsx
 import { useEffect, useState, type JSX } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { X, UserCheck, ShieldAlert, Award, Plus, Trash2 } from 'lucide-react';
 import { MainLayout } from './layouts/MainLayout';
-import { voluntarioService, cargoService } from './services/api';
+import { voluntarioService } from '@/api/voluntarios.api';
+import { cargoService } from '@/api/gestao.api';
 import { Login } from './pages/Login';
 import { Eventos } from './pages/Eventos';
 import { Diretorias } from './pages/Diretorias';
-import { VinculosAcademicos } from './pages/VinculosAcademicos'; // no topo
-import { EstruturaOrganizacional } from './pages/EstruturaOrganizacional'; // no topo
+import { VinculosAcademicos } from './pages/VinculosAcademicos';
+import { EstruturaOrganizacional } from './pages/EstruturaOrganizacional';
 
 const RotaPrivada = ({ children }: { children: JSX.Element }) => {
   return localStorage.getItem('token') ? children : <Navigate to="/login" />;
