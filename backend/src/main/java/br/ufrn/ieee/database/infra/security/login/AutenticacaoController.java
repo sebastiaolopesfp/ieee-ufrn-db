@@ -4,6 +4,7 @@ import br.ufrn.ieee.database.infra.security.jwt.TokenService;
 import br.ufrn.ieee.database.infra.security.refreshtoken.RefreshTokenService;
 import br.ufrn.ieee.database.shared.dto.LoginRequestDTO;
 import br.ufrn.ieee.database.shared.exception.RefreshTokenInvalidoException;
+import br.ufrn.ieee.database.voluntario.repository.VoluntarioRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,9 +30,6 @@ public class AutenticacaoController {
     private static final Duration DURACAO_COOKIE_CURTA = Duration.ofDays(1);
     private static final Duration DURACAO_COOKIE_LONGA = Duration.ofDays(30);
 
-    // Configurável por ambiente: em produção (Render, HTTPS) deve ser
-    // true/None; em desenvolvimento local (HTTP) precisa ser false/Lax,
-    // senão o navegador simplesmente descarta o cookie. Ver application.properties.
     @Value("${app.security.cookie-secure:false}")
     private boolean cookieSecure;
 
@@ -42,13 +40,16 @@ public class AutenticacaoController {
     private final TokenService tokenService;
     private final LoginAttemptService loginAttemptService;
     private final RefreshTokenService refreshTokenService;
+    private final VoluntarioRepository voluntarioRepository;
 
     public AutenticacaoController(AuthenticationManager authenticationManager, TokenService tokenService,
-            LoginAttemptService loginAttemptService, RefreshTokenService refreshTokenService) {
+            LoginAttemptService loginAttemptService, RefreshTokenService refreshTokenService,
+            VoluntarioRepository voluntarioRepository) {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
         this.loginAttemptService = loginAttemptService;
         this.refreshTokenService = refreshTokenService;
+        this.voluntarioRepository = voluntarioRepository;
     }
 
     @PostMapping("/login")
@@ -64,7 +65,10 @@ public class AutenticacaoController {
             var principal = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
             String role = principal.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
 
-            String accessToken = tokenService.gerarToken(dto.getEmailPessoal(), role);
+            var voluntario = voluntarioRepository.findByEmailPessoal(dto.getEmailPessoal())
+                    .orElseThrow(() -> new BadCredentialsException("Usuário não encontrado."));
+
+            String accessToken = tokenService.gerarToken(dto.getEmailPessoal(), role, voluntario.getPrimeiroNome());
 
             boolean manterConectado = Boolean.TRUE.equals(dto.getManterConectado());
             String refreshTokenBruto = refreshTokenService.gerarParaEmail(dto.getEmailPessoal(), manterConectado);
@@ -91,7 +95,8 @@ public class AutenticacaoController {
         RefreshTokenService.ResultadoRotacao resultado = refreshTokenService.validarERotacionar(refreshTokenCookie);
         var voluntario = resultado.voluntario();
 
-        String accessToken = tokenService.gerarToken(voluntario.getEmailPessoal(), voluntario.getTipoUsuario().name());
+        String accessToken = tokenService.gerarToken(voluntario.getEmailPessoal(), voluntario.getTipoUsuario().name(),
+                voluntario.getPrimeiroNome());
 
         Duration duracaoCookie = resultado.manterConectado() ? DURACAO_COOKIE_LONGA : DURACAO_COOKIE_CURTA;
         response.addHeader(HttpHeaders.SET_COOKIE,
@@ -109,7 +114,6 @@ public class AutenticacaoController {
             refreshTokenService.revogar(refreshTokenCookie);
         }
 
-        // maxAge zero instrui o navegador a apagar o cookie imediatamente.
         response.addHeader(HttpHeaders.SET_COOKIE, criarCookieRefreshToken("", Duration.ZERO).toString());
         return ResponseEntity.noContent().build();
     }

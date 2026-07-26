@@ -15,7 +15,7 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
-    public String gerarToken(String email, String role) {
+    public String gerarToken(String email, String role, String nome) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
@@ -23,6 +23,7 @@ public class TokenService {
                     .withIssuer("ieee-database-api")
                     .withSubject(email)
                     .withClaim("role", role)
+                    .withClaim("nome", nome)
                     .withExpiresAt(gerarDataExpiracao())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {

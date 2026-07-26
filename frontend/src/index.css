@@ -2,11 +2,12 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/outfit";
+@import "@fontsource-variable/montserrat";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
+    --font-heading: 'Montserrat Variable', sans-serif;
     --font-sans: 'Outfit Variable', sans-serif;
 
     --color-brand-primary: var(--brand-primary);
@@ -136,5 +137,8 @@
   html {
     @apply font-sans;
     scroll-behavior: smooth;
+    }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
     }
 }

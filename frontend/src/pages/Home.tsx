@@ -20,9 +20,11 @@ import {
 } from 'lucide-react';
 import { FaLinkedin, FaGithub } from 'react-icons/fa';
 import heroBg from '../assets/hero.jpeg';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function Home() {
     const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    const { isAuthenticated } = useAuth();
 
     const desenvolvedores = [
         {
@@ -56,10 +58,10 @@ export function Home() {
                 />
                 <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full text-white">
                     <div className="max-w-2xl">
-                        <h1 className="text-4xl md:text-5xl font-black uppercase mb-4 leading-tight italic tracking-tight">
+                        <h1 className="text-4xl md:text-5xl font-black uppercase mb-4 leading-tight tracking-tight">
                             Bem-vindo ao{' '}
                             <span className="text-brand-secondary">
-                                CoordIEEEna Hub
+                                CoordIEEEna
                             </span>
                         </h1>
                         <p className="text-base md:text-lg opacity-90 mb-8">
@@ -67,13 +69,15 @@ export function Home() {
                             UFRN para centralizar o controle de voluntários,
                             eventos e relatórios em um só lugar.
                         </p>
-                        <Link
-                            to="/login"
-                            className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-bold px-6 py-3 rounded-full border border-brand-secondary/40 shadow-lg transition-all hover:scale-105"
-                        >
-                            <LogIn size={20} />
-                            Acessar Sistema
-                        </Link>
+                        {!isAuthenticated && (
+                            <Link
+                                to="/login"
+                                className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-bold px-6 py-3 rounded-full border border-brand-secondary/40 shadow-lg transition-all hover:scale-105"
+                            >
+                                <LogIn size={20} />
+                                Acessar Sistema
+                            </Link>
+                        )}
                     </div>
                 </div>
             </section>
@@ -346,7 +350,7 @@ export function Home() {
                                         <h4 className="font-bold text-gray-900 text-lg">
                                             {dev.nome}
                                         </h4>
-                                        <p className="text-xs text-brand-tertiary font-semibold mt-0.5">
+                                        <p className="text-xs text-brand-primary font-semibold mt-0.5">
                                             {dev.funcao}
                                         </p>
                                     </div>
