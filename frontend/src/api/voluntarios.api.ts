@@ -7,7 +7,11 @@ export const voluntarioService = {
     const response = await api.get<PaginatedResponse<Voluntario>>('/api/voluntarios');
     return response.data.content;
   },
-  obterPerfil: async (id: number): Promise<VoluntarioPerfil> => {
+  obterMeuPerfil: async (): Promise<VoluntarioPerfil> => {
+    const response = await api.get('/api/voluntarios/me/perfil');
+    return response.data;
+  },
+  obterPerfilPorId: async (id: number): Promise<VoluntarioPerfil> => {
     const response = await api.get(`/api/voluntarios/${id}/perfil`);
     return response.data;
   },

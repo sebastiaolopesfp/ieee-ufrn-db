@@ -17,6 +17,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -75,6 +76,11 @@ public class VoluntarioController {
     public ResponseEntity<Void> reativar(@PathVariable Long id) {
         voluntarioService.reativar(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/me/perfil")
+    public ResponseEntity<VoluntarioPerfilResponseDTO> obterMeuPerfil(Authentication authentication) {
+        return ResponseEntity.ok(voluntarioService.obterMeuPerfil(authentication.getName()));
     }
 
     @GetMapping("/{id}/perfil")

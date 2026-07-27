@@ -1,3 +1,5 @@
+import type { Vinculo } from './academico.types';
+
 export interface Voluntario {
   id: number;
   primeiroNome: string;
@@ -13,9 +15,15 @@ export interface VoluntarioPerfil {
   ultimoNome: string;
   emailPessoal: string;
   tipoUsuario: string;
+  // Membresia IEEE
   numeroMembresia?: string;
   emailIeee?: string;
   tipoMembresia?: string;
+  // Vínculos Acadêmicos e Unidades
+  vinculos?: Vinculo[];
+  ramo?: string;
+  capitulos?: string[];
+  // Mandatos
   historicoMandatos?: Mandato[];
 }
 

@@ -95,11 +95,11 @@ public class VoluntarioService {
         Voluntario voluntario = voluntarioRepository.findById(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
 
-        // Garante a integridade referencial: históricos de membresia são preservados e
-        // não podem ser apagados
         if (membroRepository.existsById(id)) {
             throw new RegraDeNegocioException(
-                    "Não é possível excluir um voluntário com histórico de membresia ativo ou encerrado.");
+                    "Não é possível excluir um voluntário com histórico de membresia. " +
+                            "Utilize a desativação (endpoint /desativar) para remover o acesso " +
+                            "preservando o histórico institucional.");
         }
 
         voluntarioRepository.delete(voluntario);
@@ -129,6 +129,13 @@ public class VoluntarioService {
 
         voluntario.setAtivo(true);
         voluntarioRepository.save(voluntario);
+    }
+
+    @Transactional(readOnly = true)
+    public VoluntarioPerfilResponseDTO obterMeuPerfil(String emailPessoal) {
+        Voluntario voluntario = voluntarioRepository.findByEmailPessoal(emailPessoal)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Voluntário não encontrado."));
+        return obterPerfilCompleto(voluntario.getId());
     }
 
     @Transactional(readOnly = true)

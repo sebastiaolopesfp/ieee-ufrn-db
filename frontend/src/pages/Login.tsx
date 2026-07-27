@@ -23,6 +23,7 @@ export function Login() {
             const data = await authService.login({
                 emailPessoal: email,
                 senha: senha,
+                manterConectado,
             });
 
             login(data.token);

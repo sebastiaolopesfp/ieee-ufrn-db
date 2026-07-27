@@ -19,11 +19,10 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-    const { user, isAuthenticated, logout } = useAuth();
+    const { user, isAuthenticated, isLoading, logout } = useAuth();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Fecha o menu suspenso se o usuário clicar fora dele
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (
@@ -40,9 +39,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
     return (
         <div className="min-h-screen flex flex-col bg-white text-gray-800">
-            {/* HEADER */}
             <header className="sticky top-0 z-50 bg-brand-primary text-white px-6 md:px-12 py-4 grid grid-cols-2 md:grid-cols-3 items-center shadow-md border-b border-white/10">
-                {/* 1. LOGO */}
                 <div className="flex justify-start">
                     <Link
                         to="/"
@@ -59,7 +56,6 @@ export function MainLayout({ children }: MainLayoutProps) {
                     </Link>
                 </div>
 
-                {/* 2. NAVEGAÇÃO INTERNA */}
                 <nav className="hidden md:flex justify-center items-center gap-8 text-base font-medium">
                     <a
                         href="#sobre"
@@ -81,10 +77,10 @@ export function MainLayout({ children }: MainLayoutProps) {
                     </a>
                 </nav>
 
-                {/* 3. PERFIL OU LOGIN DINÂMICO */}
                 <div className="flex justify-end relative" ref={dropdownRef}>
-                    {isAuthenticated && user ? (
-                        /* USUÁRIO AUTENTICADO: MENU DROPDOWN */
+                    {isLoading ? (
+                        <div className="w-36 h-9" />
+                    ) : isAuthenticated && user ? (
                         <div className="relative">
                             <button
                                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -108,7 +104,6 @@ export function MainLayout({ children }: MainLayoutProps) {
                                 />
                             </button>
 
-                            {/* CAIXA SUSPENSA (DROPDOWN) */}
                             {dropdownOpen && (
                                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                                     <div className="px-4 py-2 border-b border-gray-100">
@@ -121,7 +116,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                                     </div>
 
                                     <Link
-                                        to="/dashboard"
+                                        to="/perfil"
                                         onClick={() => setDropdownOpen(false)}
                                         className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                                     >
@@ -146,7 +141,6 @@ export function MainLayout({ children }: MainLayoutProps) {
                             )}
                         </div>
                     ) : (
-                        /* USUÁRIO NÃO AUTENTICADO: BOTÃO LOGIN */
                         <Link
                             to="/login"
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-secondary/40 bg-transparent hover:bg-white/10 transition-all text-white font-semibold text-xs md:text-sm"
@@ -158,10 +152,8 @@ export function MainLayout({ children }: MainLayoutProps) {
                 </div>
             </header>
 
-            {/* CONTEÚDO PRINCIPAL */}
             <main className="flex-1">{children}</main>
 
-            {/* FOOTER */}
             <footer className="bg-brand-primary text-white border-t border-white/10">
                 <div className="w-full max-w-7xl mx-auto px-6 md:px-12 py-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-brand-secondary text-sm">
                     <div className="flex flex-col gap-4">
