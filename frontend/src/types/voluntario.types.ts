@@ -21,7 +21,6 @@ export interface VoluntarioPerfil {
   tipoMembresia?: string;
   // Vínculos Acadêmicos e Unidades
   vinculos?: Vinculo[];
-  ramo?: string;
   capitulos?: string[];
   // Mandatos
   historicoMandatos?: Mandato[];

@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.ufrn.ieee.database.academico.service.ContratoService;
+import br.ufrn.ieee.database.academico.service.VinculoService;
 import br.ufrn.ieee.database.gestao.dto.MandatoResponseDTO;
 import br.ufrn.ieee.database.gestao.service.MandatoService;
 import br.ufrn.ieee.database.shared.exception.EntidadeNaoEncontradaException;
@@ -24,18 +26,24 @@ public class VoluntarioService {
     private final DiretorRepository diretorRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final MandatoService mandatoService;
+    private final VinculoService vinculoService;
+    private final ContratoService contratoService;
 
     public VoluntarioService(
             VoluntarioRepository voluntarioRepository,
             MembroRepository membroRepository,
             DiretorRepository diretorRepository,
             BCryptPasswordEncoder passwordEncoder,
-            MandatoService mandatoService) {
+            MandatoService mandatoService,
+            VinculoService vinculoService,
+            ContratoService contratoService) {
         this.voluntarioRepository = voluntarioRepository;
         this.membroRepository = membroRepository;
         this.diretorRepository = diretorRepository;
         this.passwordEncoder = passwordEncoder;
         this.mandatoService = mandatoService;
+        this.vinculoService = vinculoService;
+        this.contratoService = contratoService;
     }
 
     @Transactional(readOnly = true)
@@ -164,6 +172,9 @@ public class VoluntarioService {
             List<MandatoResponseDTO> historico = mandatoService.obterHistoricoMandatos(id, usuarioEhDiretor);
             perfil.setHistoricoMandatos(historico);
         }
+
+        perfil.setVinculos(vinculoService.listarPorVoluntario(id));
+        perfil.setCapitulos(contratoService.listarNomesUnidadesAtivasPorVoluntario(id));
 
         return perfil;
     }

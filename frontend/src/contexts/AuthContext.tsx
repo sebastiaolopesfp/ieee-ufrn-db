@@ -34,15 +34,10 @@ function extrairDadosDoToken(token: string): UserData | null {
             return null;
         }
 
-        const email = decoded.sub;
-        const nomeFormatado = decoded.nome || email.split('@')[0].split('.')[0];
-        const nomeCapitalizado =
-            nomeFormatado.charAt(0).toUpperCase() + nomeFormatado.slice(1);
-
         return {
-            email,
+            email: decoded.sub,
             role: decoded.role || 'USER',
-            nomeExibicao: nomeCapitalizado,
+            nomeExibicao: decoded.nome || 'Voluntário',
         };
     } catch {
         return null;
@@ -79,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
             await api.post('/api/auth/logout');
         } catch {
+            // Ignora erros no logout (ex: token já expirado)
         } finally {
             setAccessToken(null);
             setUser(null);

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
 public class VinculoService {
@@ -37,6 +38,13 @@ public class VinculoService {
     @Transactional(readOnly = true)
     public Page<VinculoResponseDTO> listarTodos(Pageable pageable) {
         return vinculoRepository.findAll(pageable).map(this::toResponseDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public List<VinculoResponseDTO> listarPorVoluntario(Long voluntarioId) {
+        return vinculoRepository.findByVoluntarioId(voluntarioId).stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     public VinculoResponseDTO buscarPorId(Long id) {

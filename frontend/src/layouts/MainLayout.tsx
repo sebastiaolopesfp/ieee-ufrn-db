@@ -1,18 +1,27 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import logoWhite from '../assets/logo_white.png';
 import {
     ExternalLink,
-    UserRound,
     Code2,
     Mail,
     LogIn,
-    ChevronDown,
     LogOut,
     IdCardLanyard,
 } from 'lucide-react';
 import { FaLinkedin, FaYoutube, FaInstagram } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { obterIniciais } from '@/lib/utils';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -20,26 +29,14 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
     const { user, isAuthenticated, isLoading, logout } = useAuth();
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (
-                dropdownRef.current &&
-                !dropdownRef.current.contains(event.target as Node)
-            ) {
-                setDropdownOpen(false);
-            }
-        }
-        document.addEventListener('mousedown', handleClickOutside);
-        return () =>
-            document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    const nomes = user?.nomeExibicao.split(' ') || [];
+    const primeiroNome = nomes[0];
+    const ultimoNome = nomes.length > 1 ? nomes[nomes.length - 1] : undefined;
 
     return (
         <div className="min-h-screen flex flex-col bg-white text-gray-800">
-            <header className="sticky top-0 z-50 bg-brand-primary text-white px-6 md:px-12 py-4 grid grid-cols-2 md:grid-cols-3 items-center shadow-md border-b border-white/10">
+            <header className="sticky top-0 z-50 bg-primary text-white px-6 md:px-12 py-4 grid grid-cols-2 md:grid-cols-3 items-center shadow-md border-b border-white/10">
                 <div className="flex justify-start">
                     <Link
                         to="/"
@@ -59,103 +56,92 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <nav className="hidden md:flex justify-center items-center gap-8 text-base font-medium">
                     <a
                         href="#sobre"
-                        className="text-brand-secondary hover:text-white hover:underline transition-all underline-offset-4"
+                        className="text-secondary hover:text-white hover:underline transition-all underline-offset-4"
                     >
                         Sobre
                     </a>
                     <a
                         href="#sistema"
-                        className="text-brand-secondary hover:text-white hover:underline transition-all underline-offset-4"
+                        className="text-secondary hover:text-white hover:underline transition-all underline-offset-4"
                     >
                         Arquitetura
                     </a>
                     <a
                         href="#documentos"
-                        className="text-brand-secondary hover:text-white hover:underline transition-all underline-offset-4"
+                        className="text-secondary hover:text-white hover:underline transition-all underline-offset-4"
                     >
                         Documentos
                     </a>
                 </nav>
 
-                <div className="flex justify-end relative" ref={dropdownRef}>
+                <div className="flex justify-end">
                     {isLoading ? (
                         <div className="w-36 h-9" />
                     ) : isAuthenticated && user ? (
-                        <div className="relative">
-                            <button
-                                onClick={() => setDropdownOpen(!dropdownOpen)}
-                                className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-brand-secondary/40 bg-transparent hover:bg-white/10 transition-all cursor-pointer focus:outline-none"
-                            >
-                                <UserRound
-                                    size={18}
-                                    className="text-brand-secondary"
-                                />
-                                <span className="text-xs md:text-sm font-medium text-white">
-                                    Olá,{' '}
-                                    <strong className="font-semibold">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button className="flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-secondary/40 bg-transparent hover:bg-white/10 transition-all cursor-pointer focus:outline-none">
+                                    <Avatar className="h-7 w-7">
+                                        <AvatarFallback className="bg-secondary text-primary text-xs font-bold">
+                                            {obterIniciais(
+                                                primeiroNome,
+                                                ultimoNome,
+                                            )}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <span className="text-xs md:text-sm font-medium text-white">
                                         {user.nomeExibicao}
-                                    </strong>
-                                </span>
-                                <ChevronDown
-                                    size={14}
-                                    className={`text-brand-secondary transition-transform duration-200 ${
-                                        dropdownOpen ? 'rotate-180' : ''
-                                    }`}
-                                />
-                            </button>
-
-                            {dropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                                    <div className="px-4 py-2 border-b border-gray-100">
-                                        <p className="text-xs text-gray-500 font-medium">
-                                            Conectado como
-                                        </p>
-                                        <p className="text-sm font-semibold text-gray-900 truncate">
-                                            {user.email}
-                                        </p>
-                                    </div>
-
+                                    </span>
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuLabel className="font-normal">
+                                    <p className="text-xs text-muted-foreground">
+                                        Conectado como
+                                    </p>
+                                    <p className="text-sm font-semibold truncate">
+                                        {user.email}
+                                    </p>
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
                                     <Link
                                         to="/perfil"
-                                        onClick={() => setDropdownOpen(false)}
-                                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                        className="cursor-pointer"
                                     >
-                                        <IdCardLanyard
-                                            size={16}
-                                            className="text-brand-primary"
-                                        />
+                                        <IdCardLanyard />
                                         Perfil
                                     </Link>
-
-                                    <button
-                                        onClick={() => {
-                                            setDropdownOpen(false);
-                                            logout();
-                                        }}
-                                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors text-left"
-                                    >
-                                        <LogOut size={16} />
-                                        Sair do Sistema
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={logout}
+                                    variant="destructive"
+                                    className="cursor-pointer"
+                                >
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    Sair do Sistema
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     ) : (
-                        <Link
-                            to="/login"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-secondary/40 bg-transparent hover:bg-white/10 transition-all text-white font-semibold text-xs md:text-sm"
+                        <Button
+                            asChild
+                            variant="outline"
+                            className="rounded-full border-secondary/40 bg-transparent hover:bg-white/10 text-white"
                         >
-                            <LogIn size={18} className="text-brand-secondary" />
-                            Acessar Sistema
-                        </Link>
+                            <Link to="/login">
+                                <LogIn className="text-secondary" />
+                                Acessar Sistema
+                            </Link>
+                        </Button>
                     )}
                 </div>
             </header>
 
             <main className="flex-1">{children}</main>
 
-            <footer className="bg-brand-primary text-white border-t border-white/10">
-                <div className="w-full max-w-7xl mx-auto px-6 md:px-12 py-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-brand-secondary text-sm">
+            <footer className="bg-primary text-white border-t border-white/10">
+                <div className="w-full max-w-7xl mx-auto px-6 md:px-12 py-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-secondary text-sm">
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-3">
                             <img
@@ -207,6 +193,17 @@ export function MainLayout({ children }: MainLayoutProps) {
                                     Site Oficial do IEEE
                                 </a>
                             </li>
+                            <li>
+                                <a
+                                    href="https://www.ieee.org/sitemap.html"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:text-white hover:underline flex items-center gap-1.5 transition-colors"
+                                >
+                                    <ExternalLink size={16} />
+                                    Mais sites do IEEE
+                                </a>
+                            </li>
                         </ul>
                     </div>
 
@@ -214,11 +211,15 @@ export function MainLayout({ children }: MainLayoutProps) {
                         <h4 className="font-bold uppercase tracking-wider">
                             Contatos
                         </h4>
+                        <p>
+                            Fale conosco ou siga nossas redes para acompanhar
+                            eventos e oportunidades:
+                        </p>
                         <a
                             href="mailto:sb.ufrn@ieee.org"
                             className="hover:text-white hover:underline flex items-center gap-2 transition-colors w-fit font-medium"
                         >
-                            <Mail size={16} className="text-brand-secondary" />
+                            <Mail size={16} className="text-secondary" />
                             sb.ufrn@ieee.org
                         </a>
 
@@ -227,7 +228,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                                 href="https://www.instagram.com/ieeeufrn"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-2.5 rounded-full border border-brand-secondary/40 bg-transparent hover:bg-white/10 transition-all"
+                                className="p-2.5 rounded-full border border-secondary/40 bg-transparent hover:bg-white/10 transition-all"
                             >
                                 <FaInstagram size={18} />
                             </a>
@@ -235,7 +236,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                                 href="https://www.linkedin.com/company/ramoieeeufrn/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-2.5 rounded-full border border-brand-secondary/40 bg-transparent hover:bg-white/10 transition-all"
+                                className="p-2.5 rounded-full border border-secondary/40 bg-transparent hover:bg-white/10 transition-all"
                             >
                                 <FaLinkedin size={18} />
                             </a>
@@ -243,7 +244,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                                 href="https://www.youtube.com/@ramoieeeufrn"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-2.5 rounded-full border border-brand-secondary/40 bg-transparent hover:bg-white/10 transition-all"
+                                className="p-2.5 rounded-full border border-secondary/40 bg-transparent hover:bg-white/10 transition-all"
                             >
                                 <FaYoutube size={18} />
                             </a>
@@ -252,7 +253,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                 </div>
 
                 <div className="bg-black/20 border-t border-white/5 py-4">
-                    <div className="w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-brand-secondary/80">
+                    <div className="w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-secondary/80">
                         <p>
                             &copy; {new Date().getFullYear()} Ramo Estudantil
                             IEEE UFRN. Todos os direitos reservados.
@@ -260,7 +261,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                         <p className="flex items-center gap-1.5 text-center md:text-right">
                             <Code2
                                 size={14}
-                                className="text-brand-secondary shrink-0"
+                                className="text-secondary shrink-0"
                             />
                             <span>
                                 Desenvolvido por{' '}

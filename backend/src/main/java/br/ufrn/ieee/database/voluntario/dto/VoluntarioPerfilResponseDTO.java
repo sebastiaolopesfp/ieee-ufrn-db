@@ -1,5 +1,6 @@
 package br.ufrn.ieee.database.voluntario.dto;
 
+import br.ufrn.ieee.database.academico.dto.VinculoResponseDTO;
 import br.ufrn.ieee.database.gestao.dto.MandatoResponseDTO;
 import lombok.Data;
 import java.util.List;
@@ -17,4 +18,6 @@ public class VoluntarioPerfilResponseDTO {
     private String tipoMembresia;
 
     private List<MandatoResponseDTO> historicoMandatos;
+    private List<VinculoResponseDTO> vinculos;
+    private List<String> capitulos;
 }

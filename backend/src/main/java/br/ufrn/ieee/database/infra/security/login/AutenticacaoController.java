@@ -68,7 +68,8 @@ public class AutenticacaoController {
             var voluntario = voluntarioRepository.findByEmailPessoal(dto.getEmailPessoal())
                     .orElseThrow(() -> new BadCredentialsException("Usuário não encontrado."));
 
-            String accessToken = tokenService.gerarToken(dto.getEmailPessoal(), role, voluntario.getPrimeiroNome());
+            String nomeSobrenome = voluntario.getPrimeiroNome() + " " + voluntario.getUltimoNome();
+            String accessToken = tokenService.gerarToken(dto.getEmailPessoal(), role, nomeSobrenome);
 
             boolean manterConectado = Boolean.TRUE.equals(dto.getManterConectado());
             String refreshTokenBruto = refreshTokenService.gerarParaEmail(dto.getEmailPessoal(), manterConectado);
@@ -95,8 +96,9 @@ public class AutenticacaoController {
         RefreshTokenService.ResultadoRotacao resultado = refreshTokenService.validarERotacionar(refreshTokenCookie);
         var voluntario = resultado.voluntario();
 
+        String nomeSobrenome = voluntario.getPrimeiroNome() + " " + voluntario.getUltimoNome();
         String accessToken = tokenService.gerarToken(voluntario.getEmailPessoal(), voluntario.getTipoUsuario().name(),
-                voluntario.getPrimeiroNome());
+                nomeSobrenome);
 
         Duration duracaoCookie = resultado.manterConectado() ? DURACAO_COOKIE_LONGA : DURACAO_COOKIE_CURTA;
         response.addHeader(HttpHeaders.SET_COOKIE,

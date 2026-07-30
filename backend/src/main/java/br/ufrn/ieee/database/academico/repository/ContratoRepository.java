@@ -32,4 +32,7 @@ public interface ContratoRepository extends JpaRepository<Contrato, Long> {
     // (Capítulo ou Ramo)
     @EntityGraph(attributePaths = { "vinculo", "vinculo.voluntario", "unidade" })
     List<Contrato> findByUnidadeUnidadeCodigo(String unidadeCodigo);
+
+    @EntityGraph(attributePaths = { "vinculo", "vinculo.voluntario", "unidade" })
+    List<Contrato> findByVinculoVoluntarioId(Long voluntarioId);
 }

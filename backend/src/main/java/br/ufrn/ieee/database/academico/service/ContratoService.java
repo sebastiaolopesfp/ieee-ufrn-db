@@ -15,6 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Service
 public class ContratoService {
 
@@ -38,6 +41,17 @@ public class ContratoService {
     public ContratoResponseDTO buscarPorId(Long id) {
         Contrato contrato = buscarEntidadeOuFalhar(id);
         return toResponseDTO(contrato);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> listarNomesUnidadesAtivasPorVoluntario(Long voluntarioId) {
+        LocalDate hoje = LocalDate.now();
+        return contratoRepository.findByVinculoVoluntarioId(voluntarioId).stream()
+                .filter(contrato -> !hoje.isBefore(contrato.getDataInicio())
+                        && !hoje.isAfter(contrato.getDataFim()))
+                .map(contrato -> contrato.getUnidade().getNome())
+                .distinct()
+                .toList();
     }
 
     @Transactional
